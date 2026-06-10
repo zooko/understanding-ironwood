@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ironwood — the 2×2</title>
+<style>
+ body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;max-width:1060px;margin:28px auto;padding:0 14px;color:#222}
+ h1{font-size:24px;text-align:center;margin:0 0 4px}
+ .sub{text-align:center;color:#666;font-size:13.5px;margin:0 0 22px}
+ .grid{display:grid;grid-template-columns:30px 1fr 1fr;gap:12px}
+ .colhead{text-align:center;font-size:14px;font-weight:bold;padding:8px 6px;border-radius:8px}
+ .ch1{background:#eaf4ee;color:#1a5c30;border:1.5px solid #1a7a3a}
+ .ch2{background:#fbeeec;color:#8c2418;border:1.5px solid #c0392b}
+ .colhead span{display:block;font-size:11px;font-weight:normal;margin-top:2px;opacity:.75}
+ .rowlab{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:12px;font-weight:bold;
+   letter-spacing:2px;color:#777;background:#f1f1ee;border-radius:8px;padding:4px 2px}
+ .cell{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:8px 8px 2px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+ svg{width:100%;height:auto;display:block}
+ .cap{font-size:12.5px;line-height:1.45;color:#444;padding:6px 8px 8px;border-top:1px solid #eee;margin-top:4px}
+ .band{grid-column:1/4;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;padding:8px 10px;
+   font-size:13.5px;font-weight:bold}
+ .band span{font-weight:normal;opacity:.9}
+ .legend{grid-column:1/4;font-size:12px;color:#555;text-align:center;margin-top:2px;line-height:1.6}
+ svg text{font-family:inherit}
+ text.h{paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round}
+</style>
+</head>
+<body>
+
+<h1>What Ironwood does</h1>
+<p class="sub">Pick the column you believe. Read down. The bar at the bottom of each picture is the circulating supply of ZEC.</p>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const OR='#e8923a',ORD='#9a5b15',BL='#4878a8',BLD='#2c5577',GR='#1a7a3a',RD='#c0392b',GY='#999',GYD='#777',AM='#a86b00';
+const B='font-weight="bold"',BH='font-weight="bold" class="h"';
+const T=(x,y,s,f,c,e='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
+const mk=(id,f)=>`<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
+
+function leftPool(p,o){
+ let s=`<rect x="6" y="8" width="180" height="140" rx="6" fill="${o.sealed?'#f4f4f4':'#fff7ef'}" stroke="${o.sealed?'#999':OR}" stroke-width="1.6"/>`
+  +T(96,27,11,o.sealed?'#555':ORD,'Orchard pool'+(o.sealed?' &#8212; sealed':''),B)
+  +T(96,45,9,o.sealed?GYD:ORD,o.status,B);
+ if(o.split){
+  s+=`<rect x="16" y="58" width="76" height="46" rx="3" fill="${OR}"/>`
+   +T(54,79,12,'#fff','4.5M',B)+T(54,95,8,'#fff','honest')
+   +`<rect x="100" y="58" width="72" height="46" rx="3" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+   +`<circle cx="136" cy="81" r="11" fill="#fff" stroke="${RD}"/>`+T(136,85,12,RD,'?',B)
+   +T(96,122,8.5,RD,'counterfeit: invisible, unbounded',B)
+   +(o.sub?T(96,138,8.5,o.subCol||'#666',o.sub):'');
+ }else{
+  s+=T(96,92,22,OR,'4.5M',B)+T(96,118,9,o.subCol||'#666',o.sub);
+ }
+ return s;
+}
+const rightPool=o=>`<rect x="274" y="8" width="180" height="140" rx="6" fill="#eef4fa" stroke="${BL}" stroke-width="1.6"/>`
+ +T(364,27,11,BLD,o.title,B)+T(364,45,9,BLD,'moves freely &#10003;')
+ +T(364,92,22,BL,'11.5M',B)+T(364,118,9,BLD,o.sub);
+
+const gate=()=>`<rect x="224" y="8" width="12" height="140" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
+ +T(230,20,8,GR,'TURNSTILE','font-weight="bold" letter-spacing="1" class="h"');
+const aOut=(p,y,t)=>T(230,y-8,9,GR,t,BH)+`<line x1="192" y1="${y}" x2="266" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+const aIn =(p,y)=>T(230,y-8,9,GR,'in &#10003;',BH)+`<line x1="266" y1="${y}" x2="192" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+const aRed=(p,y)=>T(230,y-8,9,RD,'then: blocked',BH)+`<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`+T(230,y+4,12,RD,'&#10007;',BH);
+const aGrey=(p,y)=>T(230,y-8,9,GYD,'in: sealed',BH)+`<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`+T(230,y+4,12,GY,'&#10007;',BH);
+
+function meter(p,m){
+ let s=`<text x="30" y="170" font-size="8" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN TRANSACT</text>`
+  +T(330,170,8,'#333','16M cap',B)+`<line x1="330" y1="173" x2="330" y2="196" stroke="#333" stroke-width="1.6"/>`
+  +`<rect x="30" y="176" width="215" height="15" fill="${BL}"/>`+T(137,187.5,9,'#fff','11.5M',B)
+  +`<rect x="245" y="176" width="85" height="15" fill="${OR}"/>`+T(287,187.5,9,'#fff','4.5M',B);
+ if(m.over) s+=`<rect x="330" y="176" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+  +T(361,187.5,9,RD,'+ ?',BH)+`<text x="398" y="187.5" font-size="8" fill="${RD}" font-weight="bold">no limit</text>`;
+ s+=T(230,215,10.5,m.col,m.verdict,B);
+ return s;
+}
+
+function svgPanel(P){
+ const p=P.n;
+ const defs='<defs>'+(P.cf?`<pattern id="h${p}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="7" stroke="${RD}" stroke-width="2"/></pattern>`:'')
+  +mk('g'+p,GR)+mk('r'+p,RD)+mk('x'+p,'#bbb')+'</defs>';
+ return `<svg viewBox="0 0 460 224">${defs}${leftPool(p,P.left)}${rightPool(P.right)}${gate()}${P.flow}${meter(p,P.meter)}</svg>`;
+}
+
+const PANELS=[
+{n:1,cf:false,
+ left:{status:'moves freely inside &#10003;',sub:'all of it entered via the turnstile'},
+ right:{title:'Rest of Zcash',sub:''},
+ flow:aOut(1,68,'out &#8804; 4.5M &#10003;')+aIn(1,124),
+ meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but not provable'},
+ cap:'The books balance, and nobody is ever blocked. But today&rsquo;s protocol cannot <i>prove</i> this is the true picture &mdash; you have to assume it.'},
+{n:2,cf:true,
+ left:{split:true,status:'everything moves freely &#8212; counterfeit too'},
+ right:{title:'Rest of Zcash',sub:'protected by the turnstile'},
+ flow:aOut(2,68,'out: first 4.5M &#10003;')+aRed(2,100)+aIn(2,138),
+ meter:{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'},
+ cap:'Counterfeit is invisible and spends like real ZEC &mdash; the only bar in this grid that breaks the cap. And the turnstile counts amounts, not legitimacy: after 4.5M exits, even honest ZEC is trapped (red &#10007;).'},
+{n:3,cf:false,
+ left:{sealed:true,status:'sealed &#8212; exit is the only move',sub:'all of it can exit &#10003; &#8212; the budget matches',subCol:GR},
+ right:{title:'Rest of Zcash + new pool',sub:'&#8594; 16M as users migrate'},
+ flow:aOut(3,68,'out &#8804; 4.5M &#10003;')+aGrey(3,124),
+ meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'},
+ cap:'Exactly 4.5M is inside and exactly 4.5M may exit: every user migrates out whole. Same bar as the panel above &mdash; but now it&rsquo;s a proof, not an assumption, from the moment Ironwood activates.'},
+{n:4,cf:true,
+ left:{sealed:true,split:true,status:'sealed &#8212; exit is the only move',sub:'first come, first served',subCol:RD},
+ right:{title:'Rest of Zcash + new pool',sub:'+ at most 4.5M from Orchard'},
+ flow:aOut(4,68,'out: first 4.5M &#10003;')+aRed(4,100)+aGrey(4,138),
+ meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'},
+ cap:'The &ldquo;?&rdquo; can never reach the economy &mdash; the cap holds no matter how much counterfeit exists. The cost: if counterfeit exits first, honest ZEC inside is destroyed (red &#10007;). That risk already existed in the panel above; Ironwood is what fixes the bar.'}
+];
+
+const cell=P=>`<div class="cell">${svgPanel(P)}<div class="cap">${P.cap}</div></div>`;
+document.getElementById('grid').innerHTML=
+ `<div></div>
+  <div class="colhead ch1">If the bug was never exploited<span>read down &#8595;</span></div>
+  <div class="colhead ch2">If counterfeiting happened<span>read down &#8595;</span></div>
+  <div class="rowlab">TODAY</div>${cell(PANELS[0])}${cell(PANELS[1])}
+  <div class="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing moves inside, exit only &mdash; through the same turnstile, same 4.5M budget</span></div>
+  <div class="rowlab">AFTER IRONWOOD</div>${cell(PANELS[2])}${cell(PANELS[3])}
+  <div class="legend"><b style="color:#c0392b">&#10007;</b> = the one rule that can hurt an honest user &nbsp;&middot;&nbsp;
+   <b style="color:#999">&#10007;</b> = disabled by design (a rule, not a loss) &nbsp;&middot;&nbsp;
+   <span style="color:#c0392b"><b>?</b></span> = counterfeit: invisible, possibly zero, possibly huge &nbsp;&middot;&nbsp;
+   the bottom bar breaks the 16M cap in exactly one of the four pictures</div>`;
+</script>
+</body>
+</html>
