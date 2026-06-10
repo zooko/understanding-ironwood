@@ -46,8 +46,7 @@
  #l-all[aria-pressed="true"]{background:#444;border-color:#444;color:#fff}
  .bshort{display:none}
  @media (max-width:600px){.blong{display:none}.bshort{display:inline}}
- .status{text-align:center;font-size:12.5px;color:#777;margin:8px auto 2px;max-width:680px}
- .statusL{text-align:center;font-size:12.5px;color:#777;margin:0 auto 8px;max-width:680px}
+ .statusL{text-align:center;font-size:12.5px;color:#777;margin:8px auto;max-width:680px}
 
  /* ---- grid ---- */
  .grid{display:grid;grid-template-columns:22px 1fr 1fr;gap:10px;
@@ -57,15 +56,28 @@
  body:not([data-view="all"]) .grid{max-width:740px;margin:0 auto}
  .c-clean,.c-dirty{min-width:0;overflow:hidden;transition:opacity .4s}
  body[data-view="clean"] .c-dirty,body[data-view="dirty"] .c-clean{opacity:0;pointer-events:none}
- .colhead{text-align:center;font-size:14px;font-weight:bold;padding:8px 4px;border-radius:8px;cursor:pointer;
-   max-height:64px;overflow:hidden;transition:max-height .4s,opacity .3s,padding .4s}
+ .colhead{text-align:center;font-size:14px;font-weight:bold;padding:8px 4px;border-radius:8px;cursor:zoom-in}
+ body:not([data-view="all"]) .colhead{cursor:zoom-out}
  .ch1{background:#eaf4ee;color:#1a5c30;border:1.5px solid #1a7a3a}
  .ch2{background:#fbeeec;color:#8c2418;border:1.5px solid #c0392b}
- body:not([data-view="all"]) .colhead{max-height:0;opacity:0;padding:0;border-width:0;pointer-events:none}
  .rowlab{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:11px;font-weight:bold;
    letter-spacing:2px;color:#777;background:#f1f1ee;border-radius:8px;padding:4px 1px}
- .cell{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:8px 8px 4px;cursor:pointer;
-   box-shadow:0 1px 6px rgba(0,0,0,.05)}
+
+ /* ---- cells + wordless zoom affordance ---- */
+ .cell{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:8px 8px 4px;
+   box-shadow:0 1px 6px rgba(0,0,0,.05);position:relative;cursor:zoom-in;
+   transition:transform .2s,box-shadow .2s}
+ body:not([data-view="all"]) .cell{cursor:zoom-out}
+ @media (hover:hover){
+  .cell:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.13)}
+  .cell:hover::after{opacity:.9}
+ }
+ .cell::after{content:"";position:absolute;top:7px;right:7px;width:19px;height:19px;opacity:.4;
+   transition:opacity .2s;background:no-repeat center/contain
+   url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/><line x1="8" y1="5.2" x2="8" y2="10.8" stroke="%23555" stroke-width="1.8"/></svg>')}
+ body:not([data-view="all"]) .cell::after{background-image:
+   url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/></svg>')}
+
  svg{width:100%;height:auto;display:block}
  svg text{font-family:inherit}
  text.h{paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round}
@@ -75,11 +87,7 @@
  svg .zo,svg .zg,svg .zr,svg .zm{transition:opacity .45s}
  body[data-lens="supply"] svg .zg{opacity:.25}
  body[data-lens="funds"] svg .zr,body[data-lens="funds"] svg .zm{opacity:.15}
- .cap{font-size:14.5px;line-height:1.55;color:#333;max-height:0;opacity:0;overflow:hidden;margin:0 2px;
-   transition:max-height .6s,opacity .45s .3s}
- body[data-view="clean"] .c-clean .cap,
- body[data-view="dirty"] .c-dirty .cap{max-height:34em;opacity:1;border-top:1px solid #eee;
-   margin-top:6px;padding:8px 0}
+
  .band{grid-column:1/4;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;
    padding:8px 10px;font-size:13.5px;font-weight:bold}
  .band span{font-weight:normal;opacity:.9}
@@ -94,7 +102,7 @@
  .foot{color:#999;font-size:12px;text-align:center;margin:22px 0 8px}
 
  /* ---- stage gating ---- */
- body[data-stage="step1"] .btns,body[data-stage="step1"] .status,body[data-stage="step1"] .statusL,
+ body[data-stage="step1"] .btns,body[data-stage="step1"] .statusL,
  body[data-stage="step1"] #ansToday,body[data-stage="step1"] .grid,body[data-stage="step1"] .foot{display:none}
  body[data-stage="today"] #wiz,body[data-stage="full"] #wiz{display:none}
  body[data-stage="today"] .g-bot{display:none}
@@ -117,7 +125,6 @@
  <button id="l-supply" onclick="setConcern('supply')"><span class="blong">Is the 16M supply sound?</span><span class="bshort">16M supply</span></button>
  <button id="l-all" onclick="setConcern('both')">Both</button>
 </div></div>
-<p class="status" id="status"></p>
 <p class="statusL" id="statusL"></p>
 
 <div class="answer" id="ansToday"><span class="alab" id="ansTodayLab"></span><span id="ansTodayTxt"></span></div>
@@ -196,82 +203,73 @@ const PANELS=[
  left:{cap:'ZEC changes hands inside &#10003;',capCol:ORD,sub:'all of it entered via the turnstile'},
  right:{title:'Rest of Zcash',sub:''},
  flow:aOut(1,72,'out &#8804; 4.5M &#10003;')+aIn(1,132),
- meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but not provable'},
- cap:'Everything here is healthy: 4.5M entered through the turnstile, 4.5M circulates inside, and the books balance. But the picture rests on the amount inside Orchard &mdash; and the pool is private, so nobody can see that number. This panel can be <i>true</i> without being <i>checkable</i>. You don&rsquo;t verify it; you assume it.'},
+ meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but not provable'}},
 {n:2,cf:true,
  left:{split:true,cap:'counterfeit ZEC changes hands too',capCol:RD,sub:'invisible &amp; unbounded',subCol:RD},
  right:{title:'Rest of Zcash',sub:'protected by the turnstile'},
  flow:aOut(2,72,'out: first 4.5M &#10003;')+aRed(2,106)+aIn(2,144),
- meter:{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'},
- cap:'<b>Assuming counterfeiting happened:</b> an attacker minted ZEC from nothing, inside the pool, invisibly &mdash; the red <b>?</b>. Orchard is part of the economy, so counterfeit ZEC changing hands <i>inside</i> the pool is real circulation &mdash; the effective supply is 16M&nbsp;+&nbsp;?: unlimited, unmeasurable. The turnstile still protects the rest of Zcash (at most 4.5M can ever exit), but it counts <b>amounts, not legitimacy</b>: once 4.5M has exited, honest ZEC still inside is locked in (red &#10007;).'},
+ meter:{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'}},
 {n:3,cf:false,
  left:{sealed:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'all 4.5M can exit &#10003;',subCol:GR},
  right:{title:'Rest of Zcash + new pool',sub:'&#8594; 16M as users migrate'},
  flow:aOut(3,72,'out &#8804; 4.5M &#10003;')+aGrey(3,132),
- meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'},
- cap:'Ironwood seals the old pool: nothing enters, nothing changes hands inside &mdash; the orbits go quiet. The only act left is to exit through the turnstile. Exactly 4.5M is inside and exactly 4.5M may exit, so <b>every user migrates out whole</b>. The picture is the same as today&rsquo;s &mdash; what changed is its status: &ldquo;&#8804;&nbsp;16M&rdquo; is now enforced by consensus rules and verifiable by anyone running a node, immediately at activation.'},
+ meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}},
 {n:4,cf:true,
  left:{sealed:true,split:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'exit is first come, first served',subCol:RD},
  right:{title:'Rest of Zcash + new pool',sub:'+ at most 4.5M from Orchard'},
  flow:aOut(4,72,'out: first 4.5M &#10003;')+aRed(4,106)+aGrey(4,144),
- meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'},
- cap:'Sealing is what stops counterfeit ZEC: whatever the <b>?</b> is, it can never change hands again &mdash; and the only exit counts to 4.5M and stops. The cap holds <i>no matter how much was minted</i>, with no trust in anyone&rsquo;s assessment. The cost: the exit is first come, first served. If counterfeit ZEC exits, an equal amount of honest ZEC stays behind forever (red &#10007;) &mdash; a risk created by the bug, not by Ironwood.'}
+ meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}}
 ];
 
-const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}">${svgPanel(P)}<div class="cap">${P.cap}</div></div>`;
+const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}">${svgPanel(P)}</div>`;
 document.getElementById('grid').innerHTML=
  `<div class="g-top"></div>
-  <div class="colhead ch1 g-top c-clean" data-col="clean">If the bug was never exploited</div>
-  <div class="colhead ch2 g-top c-dirty" data-col="dirty">If counterfeiting happened</div>
+  <div class="colhead ch1 c-clean" data-col="clean">If the bug was never exploited</div>
+  <div class="colhead ch2 c-dirty" data-col="dirty">If counterfeiting happened</div>
   <div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
   <div class="bigwrap"><button class="bigbtn" id="iwbtn" onclick="toggleIW()"></button></div>
   <div class="band g-bot" id="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
   <div class="answer ans-after g-bot" id="ansAfter"><span class="alab" id="ansAfterLab"></span><span id="ansAfterTxt"></span></div>
   <div class="rowlab g-bot">AFTER IRONWOOD</div>${cell(PANELS[2],'clean','g-bot')}${cell(PANELS[3],'dirty','g-bot')}
-  <div class="legend g-bot">circling arrows = ZEC changing hands (economic circulation) &nbsp;&middot;&nbsp;
+  <div class="legend g-bot">circling arrows = ZEC changing hands &nbsp;&middot;&nbsp;
    <span style="color:#c0392b"><b>?</b></span> = counterfeit ZEC: maybe zero, maybe huge &nbsp;&middot;&nbsp;
-   <b style="color:#c0392b">&#10007;</b> = the one rule that can hurt an honest user &nbsp;&middot;&nbsp;
+   <b style="color:#c0392b">&#10007;</b> = honest ZEC trapped &nbsp;&middot;&nbsp;
    <b style="color:#999">&#10007;</b> = disabled by design &nbsp;&middot;&nbsp;
    the bar breaks the 16M cap in exactly one of the four pictures</div>`;
 
 /* ---------- answers ---------- */
 const GRN='<b style="color:#1a7a3a">',RDS='<b style="color:#c0392b">';
+const XR='<b style="color:#c0392b">&#10007;</b>',QR='<b style="color:#c0392b">?</b>';
 const QLAB={funds:'WILL USERS GET THEIR FUNDS BACK?',supply:'IS THE 16M SUPPLY SOUND?',both:'SUPPLY &amp; FUNDS'};
 const ANS={
 today:{
  funds:{
   clean:'<b>Yes.</b> Exactly 4.5M honest ZEC is inside, and the turnstile lets exactly 4.5M out &mdash; everyone can leave whole.',
-  dirty:'<b>Not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M out, then it blocks. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped (red &#10007;).',
-  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone can leave whole. '+RDS+'If counterfeiting happened</b>: the turnstile lets the first 4.5M out, whoever they are &mdash; honest ZEC could be trapped (red &#10007;). And the pool&rsquo;s privacy hides whether counterfeiting ever happened.'},
+  dirty:'<b>Not guaranteed.</b> The turnstile counts amounts, not legitimacy: it lets the first 4.5M out, then blocks the rest. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
+  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone can leave whole. '+RDS+'If counterfeiting happened</b>: the turnstile lets the first 4.5M out, whoever they are &mdash; honest ZEC could be trapped ('+XR+'). And the pool&rsquo;s privacy hides whether counterfeiting ever happened.'},
  supply:{
   clean:'<b>Yes &mdash; but unprovable.</b> The 16M figure rests on the amount inside Orchard, which is private. You assume it; you can&rsquo;t check it.',
-  dirty:'<b>No &mdash; and there&rsquo;s no limit.</b> Counterfeit ZEC changing hands inside Orchard is real circulation: 16M&nbsp;+&nbsp;?, unbounded and unmeasurable.',
-  all:'<b>No one can tell.</b> '+GRN+'If the bug was never exploited</b>: exactly 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;? &mdash; no limit. From outside the private pool, the two look identical.'},
+  dirty:'<b>No &mdash; and there&rsquo;s no limit.</b> Counterfeit ZEC changing hands inside Orchard is real circulation: 16M&nbsp;+&nbsp;'+QR+', unbounded and unmeasurable.',
+  all:'<b>No one can tell.</b> '+GRN+'If the bug was never exploited</b>: exactly 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit. From outside the private pool, the two look identical.'},
  both:{
   clean:'<b>Funds: safe. Supply: 16M.</b> But both facts rest on the one number nobody can see &mdash; the amount inside the private pool. True, but not checkable.',
-  dirty:'<b>Supply: no limit (16M&nbsp;+&nbsp;?). Funds: not guaranteed</b> &mdash; the turnstile passes the first 4.5M and blocks the rest (red &#10007;).',
+  dirty:'<b>Supply: no limit (16M&nbsp;+&nbsp;'+QR+'). Funds: not guaranteed</b> &mdash; the turnstile lets the first 4.5M out, then blocks the rest ('+XR+').',
   all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed. The pool&rsquo;s privacy hides which is real.'}},
 after:{
  funds:{
   clean:'<b>Yes &mdash; everyone migrates out whole.</b> Exactly 4.5M inside, exactly 4.5M may exit.',
-  dirty:'<b>Probably, but not necessarily.</b> The exit counts to 4.5M and stops, whoever goes through. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped forever (red &#10007;) &mdash; a risk created by the bug, not by Ironwood.',
-  all:'<b>Probably, but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone exits whole. '+RDS+'If counterfeiting happened</b>: the exit counts to 4.5M and stops &mdash; honest ZEC behind counterfeit ZEC is trapped (red &#10007;). A risk created by the bug, not by Ironwood.'},
+  dirty:'<b>Probably, but not necessarily.</b> The exit counts to 4.5M and stops, whoever goes through. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped forever ('+XR+') &mdash; a risk created by the bug, not by Ironwood.',
+  all:'<b>Probably, but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone exits whole. '+RDS+'If counterfeiting happened</b>: the exit counts to 4.5M and stops &mdash; honest ZEC behind counterfeit ZEC is trapped ('+XR+'). A risk created by the bug, not by Ironwood.'},
  supply:{
   clean:'<b>Yes &mdash; and now provable.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it, immediately at activation.',
-  dirty:'<b>Yes &mdash; no matter how much was minted.</b> The <b>?</b> can never change hands again, and the only exit counts to 4.5M and stops. Enforced, verifiable.',
+  dirty:'<b>Yes &mdash; no matter how much was minted.</b> The '+QR+' can never change hands again, and the only exit counts to 4.5M and stops. Enforced, verifiable.',
   all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed and at most 4.5M can ever exit, so &#8804;&nbsp;16M is enforced and verifiable by anyone running a node &mdash; regardless of what happened before.'},
  both:{
   clean:'<b>Supply: &#8804;&nbsp;16M, provable. Funds: everyone exits whole.</b> The same picture as today &mdash; now verified instead of assumed.',
-  dirty:'<b>Supply: capped, provably. Funds: not guaranteed</b> &mdash; if counterfeit ZEC exits, an equal amount of honest ZEC is trapped (red &#10007;).',
-  all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; enforced, verifiable, immediately.</b> Funds: '+GRN+'whole if the bug was never exploited</b>; '+RDS+'not guaranteed if counterfeiting happened</b> (red &#10007;).'}}};
+  dirty:'<b>Supply: capped, provably. Funds: not guaranteed</b> &mdash; if counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
+  all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; enforced, verifiable, immediately.</b> Funds: '+GRN+'whole if the bug was never exploited</b>; '+RDS+'not guaranteed if counterfeiting happened</b> ('+XR+').'}}};
 
-const STATUS={
- all:'Tap a picture to zoom in.',
- clean:'Assuming the bug was never exploited &mdash; tap the picture to zoom back out.',
- dirty:'Assuming counterfeiting happened &mdash; tap the picture to zoom back out.'};
-const STATUSL={
- all:'',
- supply:'Watch the circling arrows and the supply bar.',
+const STATUSL={all:'',supply:'Watch the circling arrows and the supply bar.',
  funds:'Watch the Orchard pool and its turnstile.'};
 
 /* ---------- state ---------- */
@@ -299,7 +297,6 @@ function setConcern(c){
 }
 function setView(v){
  document.body.dataset.view=v;
- document.getElementById('status').innerHTML=STATUS[v];
  renderAns();
 }
 function setStage(s){
