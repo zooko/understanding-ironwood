@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ironwood in four panels</title>
+<style>
+ body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;max-width:920px;margin:32px auto;padding:0 16px;color:#222;line-height:1.5}
+ h1{font-size:26px;text-align:center;margin-bottom:6px}
+ .sub{text-align:center;color:#666;font-size:14px;margin:0 0 26px}
+ .controls{position:sticky;top:0;z-index:10;background:rgba(250,250,247,.96);backdrop-filter:blur(4px);
+   border:1px solid #ddd;border-radius:12px;padding:14px 18px;margin-bottom:30px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+ .crow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0}
+ .clabel{font-size:13px;font-weight:bold;color:#555;width:215px}
+ .seg{display:flex;border:1.5px solid #bbb;border-radius:8px;overflow:hidden}
+ .seg button{border:none;background:#fff;padding:7px 14px;font-size:13.5px;cursor:pointer;color:#444;border-right:1.5px solid #ddd}
+ .seg button:last-child{border-right:none}
+ .seg button.on{background:#1a7a3a;color:#fff;font-weight:bold}
+ #status{font-size:13px;color:#666;font-style:italic;margin:8px 0 0;min-height:1.2em}
+ figure{margin:34px 0;background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:16px 14px 4px;
+   box-shadow:0 2px 10px rgba(0,0,0,.06);position:relative;transition:opacity .45s,filter .45s}
+ svg{width:100%;height:auto;display:block}
+ figcaption{font-size:15px;color:#333;padding:12px 22px 14px;border-top:1px solid #eee;margin-top:8px}
+ .ribbon{display:none;position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#1a7a3a;color:#fff;
+   font-size:12.5px;font-weight:bold;letter-spacing:1px;padding:4px 16px;border-radius:20px;white-space:nowrap;
+   box-shadow:0 2px 6px rgba(0,0,0,.25)}
+ body[data-belief="clean"] figure[data-world="clean"] .ribbon,
+ body[data-belief="dirty"] figure[data-world="dirty"] .ribbon{display:block}
+ body[data-belief="clean"] figure[data-world="dirty"],
+ body[data-belief="dirty"] figure[data-world="clean"]{opacity:.15;filter:grayscale(.9)}
+ .L-flow,.L-meter,.L-risk,.spot{transition:opacity .45s}
+ .spot{opacity:0}
+ body[data-lens="supply"] .L-flow{opacity:.18}
+ body[data-lens="supply"] .L-risk{opacity:.18}
+ body[data-lens="supply"] .spot{opacity:1}
+ body[data-lens="wholeness"] .L-flow{opacity:.3}
+ body[data-lens="wholeness"] .L-meter{opacity:.15}
+ svg text{font-family:inherit}
+ text.h{paint-order:stroke;stroke:#fff;stroke-width:6px;stroke-linejoin:round}
+</style>
+</head>
+<body data-belief="both" data-lens="all">
+
+<h1>What Ironwood does, in four pictures</h1>
+<p class="sub">Two pictures of today, two pictures of after the upgrade &mdash; under each of two beliefs about the past.</p>
+
+<div class="controls">
+ <div class="crow"><span class="clabel">What do you think happened?</span>
+  <div class="seg" data-key="belief">
+   <button data-v="clean">The bug was never exploited</button>
+   <button data-v="dirty">Counterfeiting may have happened</button>
+   <button data-v="both" class="on">Show both</button>
+  </div></div>
+ <div class="crow"><span class="clabel">What do you care most about?</span>
+  <div class="seg" data-key="lens">
+   <button data-v="supply">Supply soundness</button>
+   <button data-v="wholeness">Honest users&rsquo; funds</button>
+   <button data-v="all" class="on">Everything</button>
+  </div></div>
+ <p id="status"></p>
+</div>
+
+<div id="panels"></div>
+
+<script>
+const C={or:'#e8923a',orD:'#9a5b15',bl:'#4878a8',blD:'#2c5577',gr:'#1a7a3a',rd:'#c0392b',gy:'#999',gyD:'#777'};
+const T=(x,y,s,f,c,e='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
+const B='font-weight="bold"', BH='font-weight="bold" class="h"';
+const mark=(id,f)=>`<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
+const circ=(cx,col,m)=>`<path d="M${cx+60},104 C${cx+32},88 ${cx-32},88 ${cx-60},104" fill="none" stroke="${col}" stroke-width="2.5" marker-end="url(#${m})"/><path d="M${cx-60},116 C${cx-32},132 ${cx+32},132 ${cx+60},116" fill="none" stroke="${col}" stroke-width="2.5" marker-end="url(#${m})"/>`;
+
+const splitBoxes=(p,note)=>`<rect x="48" y="152" width="126" height="56" rx="3" fill="${C.or}"/>`
+ +T(111,177,15,'#fff','4.5M',B)+T(111,194,9.5,'#fff','honest ZEC')
+ +`<rect x="186" y="152" width="126" height="56" rx="3" fill="url(#c${p})" stroke="${C.rd}" stroke-dasharray="5,4"/>`
+ +`<circle cx="249" cy="180" r="15" fill="#fff" stroke="${C.rd}"/>`+T(249,186,16,C.rd,'?',B)
+ +T(249,221,9.5,C.rd,'counterfeit: 0 &#8230; unbounded',B)+T(249,233,9.5,C.rd,note);
+
+function leftPool(p,o){
+ let s=`<rect x="30" y="48" width="300" height="190" rx="6" fill="${o.sealed?'#f5f5f5':'#fff7ef'}" stroke="${o.sealed?'#888':C.or}" stroke-width="2"/>`
+  +T(180,72,13.5,o.sealed?'#444':C.orD,'Orchard pool'+(o.sealed?' &#8212; sealed':''),B)
+  +circ(180,o.sealed?'#c4c4c4':C.or,(o.sealed?'x':'o')+p);
+ s+=o.sealed
+  ? T(180,117,18,C.gy,'&#10007;',BH)+T(180,146,10.5,C.gyD,'sends &amp; receives inside: disabled by design',B)
+  : T(180,146,10.5,C.orD,o.freeNote);
+ s+=o.split ? splitBoxes(p,o.cfNote)
+  : T(180,194,28,C.or,'4.5M',B)+T(180,218,10.5,o.subCol||'#555',o.sub);
+ return s;
+}
+const rightPool=(p,title,sub)=>`<rect x="510" y="48" width="300" height="190" rx="6" fill="#eef4fa" stroke="${C.bl}" stroke-width="2"/>`
+ +T(660,72,13.5,C.blD,title,B)+circ(660,C.bl,'b'+p)
+ +T(660,150,11,C.blD,'ZEC moves freely inside &#10003;')+T(660,196,28,C.bl,'11.5M',B)
+ +(sub?T(660,220,10.5,C.blD,sub):'');
+
+const turnstile=()=>T(420,46,11,C.gr,'TURNSTILE','font-weight="bold" letter-spacing="1"')
+ +`<rect x="406" y="54" width="28" height="184" fill="#e9f7ee" stroke="${C.gr}" stroke-width="1.5"/>`;
+const rOut=(p,y,t)=>T(420,y,11.5,C.gr,t,BH)+`<line x1="346" y1="${y+18}" x2="496" y2="${y+18}" stroke="${C.gr}" stroke-width="3" marker-end="url(#g${p})"/>`;
+const rIn =(p,y,t)=>T(420,y,11.5,C.gr,t,BH)+`<line x1="496" y1="${y+18}" x2="346" y2="${y+18}" stroke="${C.gr}" stroke-width="3" marker-end="url(#g${p})"/>`;
+const rRed=(p,y,t)=>T(420,y,11.5,C.rd,t,BH)+`<line x1="346" y1="${y+18}" x2="400" y2="${y+18}" stroke="${C.rd}" stroke-width="3" marker-end="url(#r${p})"/>`+T(420,y+25,17,C.rd,'&#10007;',BH);
+const rGrey=(p,y,t)=>T(420,y,11.5,C.gyD,t,BH)+`<line x1="496" y1="${y+20}" x2="446" y2="${y+20}" stroke="#c4c4c4" stroke-width="3" marker-end="url(#x${p})"/>`+T(420,y+27,17,C.gy,'&#10007;',BH);
+const pill=(w,t,warn)=>`<rect x="${420-w/2}" y="250" width="${w}" height="27" rx="13.5" fill="${warn?'#fdf0ee':'#eafaf0'}" stroke="${warn?C.rd:C.gr}" stroke-width="1.5"/>`+T(420,268,12,warn?C.rd:C.gr,t,B);
+
+function meter(p,m){
+ let s=`<rect x="100" y="282" width="690" height="64" rx="8" fill="none" stroke="#e8b800" stroke-width="3" class="spot"/>`
+  +T(420,298,10,'#777','SUPPLY METER &#8212; TOTAL ZEC THAT CAN TRANSACT','font-weight="bold" letter-spacing="1.5"')
+  +T(680,298,10,'#333','16M cap',BH)+`<line x1="680" y1="301" x2="680" y2="334" stroke="#333" stroke-width="2"/>`
+  +`<rect x="120" y="305" width="402" height="24" fill="${C.bl}"/>`+T(321,322,12.5,'#fff','11.5M',B)
+  +`<rect x="522" y="305" width="158" height="24" fill="${C.or}"/>`+T(601,322,12.5,'#fff',m.orAmt,B);
+ if(m.overshoot) s+=`<rect x="680" y="305" width="88" height="24" fill="url(#c${p})" stroke="${C.rd}" stroke-dasharray="5,4"/>`
+  +T(724,322,12.5,C.rd,'+ ?',BH)+T(724,342,9,C.rd,'past the cap &#8212; no limit',B);
+ s+=T(321,342,9,C.blD,'rest of Zcash')+T(601,342,9,C.orD,m.orSub)
+  +T(420,366,13.5,m.bad?C.rd:C.gr,m.v1,B)+T(420,384,11.5,m.v2red?C.rd:'#333',m.v2);
+ return s;
+}
+
+function panelSVG(P){
+ const p=P.n;
+ const defs='<defs>'
+  +(P.cf?`<pattern id="c${p}" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="8" stroke="${C.rd}" stroke-width="2.5"/></pattern>`:'')
+  +mark('o'+p,C.or)+mark('b'+p,C.bl)+mark('g'+p,C.gr)+mark('r'+p,C.rd)+mark('x'+p,'#bbb')+'</defs>';
+ return `<svg viewBox="0 0 840 392">${defs}`
+  +T(420,28,17,'#222',P.title,B)
+  +`<g class="L-flow">`+leftPool(p,P.left)+rightPool(p,P.rTitle,P.rSub)+turnstile()+P.flow+`</g>`
+  +`<g class="L-risk">${P.risk}</g><g class="L-meter">${meter(p,P.meter)}</g></svg>`;
+}
+
+const PANELS=[
+{n:1,world:'clean',when:'BEFORE IRONWOOD',cf:false,
+ title:'1. TODAY &#8212; if no counterfeiting ever happened',
+ left:{freeNote:'ZEC moves freely inside &#10003;',sub:'all of it entered through the turnstile'},
+ rTitle:'Rest of Zcash',rSub:'',
+ flow:rOut(1,100,'out &#10003; &#8212; counted publicly')+rIn(1,170,'in &#10003; &#8212; counted publicly'),
+ risk:pill(380,'honest users: safe &#10003; &#8212; nothing is ever blocked',false),
+ meter:{orAmt:'4.5M',orSub:'in Orchard',
+  v1:'&#10003; Supply = 16M &#8212; but only because this panel assumes no counterfeiting',
+  v2:'Today&rsquo;s protocol cannot prove this assumption to you.'},
+ cap:`This is Zcash if the bug was never exploited. ZEC moves freely inside Orchard, freely in the rest of Zcash, and freely between the two. The turnstile is already part of today&rsquo;s protocol: a public tally of everything that crosses, in both directions. Exactly 4.5M went in, so at most 4.5M may come out &mdash; a limit that never blocks anyone, because the books genuinely balance. The meter reads exactly 16M. But note the fine print: it reads 16M because this panel <i>assumes</i> no counterfeiting &mdash; and today&rsquo;s protocol can&rsquo;t prove that assumption to you.`},
+
+{n:2,world:'dirty',when:'BEFORE IRONWOOD',cf:true,
+ title:'2. TODAY &#8212; if counterfeiting happened',
+ left:{split:true,freeNote:'everything moves freely &#8212; counterfeit too &#10003;',cfNote:'invisible &#8212; nobody can count it'},
+ rTitle:'Rest of Zcash',rSub:'protected by the turnstile',
+ flow:rOut(2,86,'out: first 4.5M &#10003;')+rIn(2,186,'in &#10003;'),
+ risk:rRed(2,133,'after that: blocked')+pill(440,'&#9888; once 4.5M has exited, honest ZEC is trapped inside forever',true),
+ meter:{orAmt:'4.5M',orSub:'in Orchard',overshoot:true,bad:true,
+  v1:'&#10007; Supply = 16M + ? &#8212; no enforced limit, not verifiable',
+  v2:'The turnstile counts amounts, not legitimacy.'},
+ cap:`Now suppose counterfeit ZEC exists inside Orchard. Because the pool is private, no one can see it or count it, and it spends just like honest ZEC &mdash; so the supply meter overshoots the 16M cap by an unknowable amount. The turnstile still protects the rest of Zcash: at most 4.5M can ever leave Orchard. But it counts amounts, not legitimacy: the first 4.5M out gets through, whoever owns it, and after that the door closes forever &mdash; even on honest users. That is the warning pill. Everything in this picture is already true in today&rsquo;s Zcash. None of it is new.`},
+
+{n:3,world:'clean',when:'AFTER IRONWOOD',cf:false,
+ title:'3. AFTER IRONWOOD &#8212; if no counterfeiting ever happened',
+ left:{sealed:true,sub:'all of it can exit &#10003; &#8212; the limit matches exactly',subCol:C.gr},
+ rTitle:'Rest of Zcash (incl. new pool)',rSub:'&#8594; 16M as everyone migrates over',
+ flow:rOut(3,100,'out &#10003; &#8212; up to 4.5M')+rGrey(3,172,'in: sealed by design'),
+ risk:pill(420,'honest users: every coin can exit &#10003; &#8212; nobody loses anything',false),
+ meter:{orAmt:'4.5M',orSub:'migrating out of Orchard',
+  v1:'&#10003; Supply &#8804; 16M &#8212; enforced &amp; verifiable by anyone, immediately',
+  v2:'Same bar as Panel 1 &#8212; but now it is a proof, not an assumption.'},
+ cap:`Ironwood flips one switch: ZEC can no longer move around <i>inside</i> the old Orchard pool, and nothing new can enter it. The only move left is out through the turnstile &mdash; the same turnstile, with the same 4.5M limit, as before. If no counterfeiting ever happened, this is painless: exactly 4.5M is inside, exactly 4.5M may leave, and every user migrates out whole. Compare the meter with Panel 1: the bar is identical, but the verdict changed from &ldquo;true if you assume&rdquo; to &ldquo;enforced and verifiable&rdquo; &mdash; and that holds the moment Ironwood activates, before anyone migrates.`},
+
+{n:4,world:'dirty',when:'AFTER IRONWOOD',cf:true,
+ title:'4. AFTER IRONWOOD &#8212; if counterfeiting happened',
+ left:{sealed:true,split:true,cfNote:'trapped &#8212; its only move is exit'},
+ rTitle:'Rest of Zcash (incl. new pool)',rSub:'+ at most 4.5M from Orchard',
+ flow:rOut(4,82,'out: first 4.5M &#10003;')+rGrey(4,184,'in: sealed by design'),
+ risk:rRed(4,128,'after that: blocked')+pill(440,'&#9888; if counterfeit exits first, honest ZEC is what gets destroyed',true),
+ meter:{orAmt:'&#8804; 4.5M',orSub:'whatever exits Orchard first',
+  v1:'&#10003; Supply &#8804; 16M &#8212; enforced &amp; verifiable, no matter how much counterfeit exists',
+  v2:'Compare with Panel 2: the hatched ? is gone &#8212; counterfeit can no longer reach the economy.'},
+ cap:`Same rules as Panel 3 &mdash; but now the sealed pool also holds counterfeit ZEC. It can no longer circulate inside, so its only option is the turnstile, which lets out at most 4.5M, first come, first served. Compare the meter with Panel 2: the hatched &ldquo;?&rdquo; segment is gone &mdash; not because the counterfeit vanished, but because it can no longer reach the economy. The painful part is the warning pill: if counterfeit exits before an honest user migrates, that honest user&rsquo;s ZEC is destroyed. That risk is not new &mdash; it was already there in Panel 2. What Ironwood changes is the meter: from &ldquo;16M + ?, unverifiable&rdquo; to &ldquo;&#8804; 16M, verifiable by anyone.&rdquo;`}
+];
+
+document.getElementById('panels').innerHTML=PANELS.map(P=>
+ `<figure data-world="${P.world}"><div class="ribbon">YOUR STORY &middot; ${P.when}</div>${panelSVG(P)}<figcaption>${P.cap}</figcaption></figure>`).join('');
+
+document.querySelectorAll('.seg').forEach(seg=>{
+ seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  seg.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.body.dataset[seg.dataset.key]=b.dataset.v;
+  updateStatus();
+ });
+});
+function updateStatus(){
+ const b=document.body.dataset.belief,l=document.body.dataset.lens;
+ const bm={clean:'Your story: Panel 1 \u2192 Panel 3 \u2014 Ironwood turns your belief into a proof.',
+           dirty:'Your story: Panel 2 \u2192 Panel 4 \u2014 Ironwood traps the counterfeit and restores the cap.',
+           both:'Showing both stories.'};
+ const lm={supply:'Spotlight: the supply meters. They overshoot 16M exactly once \u2014 in Panel 2.',
+           wholeness:'Spotlight: the wholeness pills. The warning exists before and after Ironwood \u2014 the upgrade neither created it nor can remove it.',
+           all:'Full detail.'};
+ document.getElementById('status').textContent=bm[b]+' '+lm[l];
+}
+updateStatus();
+</script>
+</body>
+</html>
