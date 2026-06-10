@@ -9,23 +9,32 @@
    padding:0 12px;color:#222;background:#fafaf8}
  h1{font-size:22px;text-align:center;margin:4px 0 2px}
  .sub{text-align:center;color:#666;font-size:13.5px;margin:0 0 8px}
- .btns{position:sticky;top:0;z-index:9;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
-   padding:10px 0 8px;background:rgba(250,250,248,.96);border-bottom:1px solid #e7e7e2}
- .btns button{font:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:18px;
+ .btns{position:sticky;top:0;z-index:9;padding:8px 0 6px;background:rgba(250,250,248,.96);
+   border-bottom:1px solid #e7e7e2}
+ .brow{display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;margin:4px 0}
+ .blab{font-size:10.5px;font-weight:bold;letter-spacing:1.5px;color:#999;min-width:74px;text-align:right}
+ .btns button{font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:16px;
    border:1.5px solid #bbb;background:#fff;color:#444;cursor:pointer}
  #b-clean{border-color:#1a7a3a;color:#1a7a3a}
  #b-dirty{border-color:#c0392b;color:#c0392b}
- #b-all[aria-pressed="true"]{background:#444;border-color:#444;color:#fff}
+ #l-supply{border-color:#2c5577;color:#2c5577}
+ #l-funds{border-color:#9a5b15;color:#9a5b15}
+ #b-all[aria-pressed="true"],#l-all[aria-pressed="true"]{background:#444;border-color:#444;color:#fff}
  #b-clean[aria-pressed="true"]{background:#1a7a3a;color:#fff}
  #b-dirty[aria-pressed="true"]{background:#c0392b;color:#fff}
- .status{text-align:center;font-size:13px;color:#555;margin:10px auto;max-width:680px;min-height:2.4em}
- .grid{display:grid;grid-template-columns:22px 1fr 1fr;gap:10px;scroll-margin-top:70px;
+ #l-supply[aria-pressed="true"]{background:#2c5577;color:#fff}
+ #l-funds[aria-pressed="true"]{background:#9a5b15;color:#fff}
+ .status{text-align:center;font-size:13px;color:#555;margin:10px auto 4px;max-width:680px;min-height:2.4em}
+ .statusL{text-align:center;font-size:13px;margin:0 auto 10px;max-width:680px}
+ .grid{display:grid;grid-template-columns:22px 1fr 1fr;gap:10px;
    transition:grid-template-columns .65s cubic-bezier(.45,0,.2,1)}
  body[data-view="clean"] .grid{grid-template-columns:22px 1fr 0fr}
  body[data-view="dirty"] .grid{grid-template-columns:22px 0fr 1fr}
+ body:not([data-view="all"]) .grid{max-width:740px;margin:0 auto}
  .c-clean,.c-dirty{min-width:0;overflow:hidden;transition:opacity .4s}
  body[data-view="clean"] .c-dirty,body[data-view="dirty"] .c-clean{opacity:0;pointer-events:none}
- .colhead{text-align:center;font-size:14px;font-weight:bold;padding:8px 4px;border-radius:8px;cursor:pointer}
+ .colhead{text-align:center;font-size:14px;font-weight:bold;padding:8px 4px;border-radius:8px;
+   cursor:pointer;max-height:64px;overflow:hidden}
  .ch1{background:#eaf4ee;color:#1a5c30;border:1.5px solid #1a7a3a}
  .ch2{background:#fbeeec;color:#8c2418;border:1.5px solid #c0392b}
  .colhead span{display:block;font-size:11px;font-weight:normal;margin-top:2px;opacity:.75}
@@ -39,10 +48,13 @@
  svg .d{opacity:0;transition:opacity .45s .35s}
  body[data-view="clean"] .c-clean svg .d,
  body[data-view="dirty"] .c-dirty svg .d{opacity:1}
+ svg .zf,svg .zr,svg .zm{transition:opacity .45s}
+ body[data-lens="supply"] svg .zf,body[data-lens="supply"] svg .zr{opacity:.15}
+ body[data-lens="funds"] svg .zm,body[data-lens="funds"] svg .zr{opacity:.15}
  .cap{font-size:14.5px;line-height:1.55;color:#333;max-height:0;opacity:0;overflow:hidden;margin:0 2px;
    transition:max-height .6s,opacity .45s .3s}
  body[data-view="clean"] .c-clean .cap,
- body[data-view="dirty"] .c-dirty .cap{max-height:32em;opacity:1;border-top:1px solid #eee;
+ body[data-view="dirty"] .c-dirty .cap{max-height:34em;opacity:1;border-top:1px solid #eee;
    margin-top:6px;padding:8px 0}
  .band{grid-column:1/4;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;
    padding:8px 10px;font-size:13.5px;font-weight:bold}
@@ -50,19 +62,26 @@
  .legend{grid-column:1/4;font-size:12px;color:#555;text-align:center;line-height:1.6;transition:opacity .4s}
  body:not([data-view="all"]) .legend{opacity:0;height:0;overflow:hidden;margin:0}
  .foot{color:#999;font-size:12px;text-align:center;margin:22px 0 8px}
+ @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
-<body data-view="all">
+<body data-view="all" data-lens="all">
 
 <h1>What Ironwood does</h1>
 <p class="sub">Columns: the two things that might be true. Rows: before and after Ironwood.</p>
 
 <div class="btns">
- <button id="b-all"   onclick="setView('all')">See the whole map</button>
- <button id="b-clean" onclick="setView('clean')">The bug was never exploited</button>
- <button id="b-dirty" onclick="setView('dirty')">Counterfeiting happened</button>
+ <div class="brow"><span class="blab">ZOOM</span>
+  <button id="b-all" onclick="setView('all')">See the whole map</button>
+  <button id="b-clean" onclick="setView('clean')">The bug was never exploited</button>
+  <button id="b-dirty" onclick="setView('dirty')">Counterfeiting happened</button></div>
+ <div class="brow"><span class="blab">SPOTLIGHT</span>
+  <button id="l-all" onclick="setLens('all')">Everything</button>
+  <button id="l-supply" onclick="setLens('supply')">The 16M supply</button>
+  <button id="l-funds" onclick="setLens('funds')">Honest users&rsquo; funds</button></div>
 </div>
 <p class="status" id="status"></p>
+<p class="statusL" id="statusL"></p>
 
 <div class="grid" id="grid"></div>
 
@@ -70,112 +89,137 @@
 
 <script>
 const OR='#e8923a',ORD='#9a5b15',BL='#4878a8',BLD='#2c5577',GR='#1a7a3a',RD='#c0392b',GY='#999',GYD='#777',AM='#a86b00';
-const B='font-weight="bold"',BD='font-weight="bold" class="d"',BDH='font-weight="bold" class="d h"';
+const B='font-weight="bold"',BH='font-weight="bold" class="h"',BD='font-weight="bold" class="d"',BDH='font-weight="bold" class="d h"';
 const T=(x,y,s,f,c,e='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
 const mk=(id,f)=>`<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
 
+// orbit arrows = "this amount can change hands"
 function leftPool(p,o){
- let s=`<rect x="6" y="8" width="180" height="140" rx="6" fill="${o.sealed?'#f4f4f4':'#fff7ef'}" stroke="${o.sealed?'#999':OR}" stroke-width="1.6"/>`
-  +T(96,27,11.5,o.sealed?'#555':ORD,'Orchard pool'+(o.sealed?' &#8212; sealed':''),B)
-  +T(96,45,9.5,o.sealed?GYD:ORD,o.status,BD);
+ const sl=o.sealed, dash=sl?' stroke-dasharray="5,4"':'';
+ const arc=(d,col,m)=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="2.2"${dash} marker-end="url(#${m}${p})"/>`;
+ let s=`<rect x="6" y="8" width="180" height="156" rx="6" fill="${sl?'#f4f4f4':'#fff7ef'}" stroke="${sl?'#999':OR}" stroke-width="1.6"/>`
+  +T(96,26,11.5,sl?'#555':ORD,'Orchard pool'+(sl?' &#8212; sealed':''),B);
  if(o.split){
-  s+=`<rect x="16" y="58" width="76" height="46" rx="3" fill="${OR}"/>`
-   +T(54,79,12,'#fff','4.5M',B)+T(54,95,8.5,'#fff','honest')
-   +`<rect x="100" y="58" width="72" height="46" rx="3" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
-   +`<circle cx="136" cy="81" r="11" fill="#fff" stroke="${RD}"/>`+T(136,85,12,RD,'?',B)
-   +T(96,122,9.5,RD,'counterfeit: invisible, unbounded',BD)
-   +(o.sub?T(96,138,9.5,o.subCol||'#666',o.sub,'class="d"'):'');
+  s+=arc('M 54 56 A 42 16 0 0 1 138 56',sl?'#c4c4c4':ORD,sl?'x':'o')
+   +arc('M 138 112 A 42 16 0 0 1 54 112',sl?'#c4c4c4':RD,sl?'x':'r')
+   +`<rect x="16" y="62" width="76" height="44" rx="3" fill="${OR}"/>`
+   +T(54,82,12,'#fff','4.5M',B)+T(54,97,8.5,'#fff','honest')
+   +`<rect x="100" y="62" width="72" height="44" rx="3" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+   +`<circle cx="136" cy="84" r="11" fill="#fff" stroke="${RD}"/>`+T(136,88,12,RD,'?',B);
+  if(sl)s+=T(96,46,12,GY,'&#10007;',BH)+T(96,130,12,GY,'&#10007;',BH);
  }else{
-  s+=T(96,92,22,OR,'4.5M',B)+T(96,118,9.5,o.subCol||'#666',o.sub,'class="d"');
+  s+=arc('M 51 60 A 45 16 0 0 1 141 60',sl?'#c4c4c4':ORD,sl?'x':'o')
+   +arc('M 141 104 A 45 16 0 0 1 51 104',sl?'#c4c4c4':ORD,sl?'x':'o')
+   +T(96,90,22,OR,'4.5M',B);
+  if(sl)s+=T(96,50,12,GY,'&#10007;',BH)+T(96,122,12,GY,'&#10007;',BH);
  }
+ s+=T(96,146,9.5,o.capCol,o.cap,B)
+  +(o.sub?T(96,159,9.5,o.subCol||'#666',o.sub,'class="d"'):'');
  return s;
 }
-const rightPool=o=>`<rect x="274" y="8" width="180" height="140" rx="6" fill="#eef4fa" stroke="${BL}" stroke-width="1.6"/>`
- +T(364,27,11.5,BLD,o.title,B)+T(364,45,9.5,BLD,'moves freely &#10003;','class="d"')
- +T(364,92,22,BL,'11.5M',B)+T(364,118,9.5,BLD,o.sub,'class="d"');
+const rightPool=(p,o)=>`<rect x="274" y="8" width="180" height="156" rx="6" fill="#eef4fa" stroke="${BL}" stroke-width="1.6"/>`
+ +T(364,26,11.5,BLD,o.title,B)
+ +`<path d="M 319 60 A 45 16 0 0 1 409 60" fill="none" stroke="${BL}" stroke-width="2.2" marker-end="url(#b${p})"/>`
+ +`<path d="M 409 104 A 45 16 0 0 1 319 104" fill="none" stroke="${BL}" stroke-width="2.2" marker-end="url(#b${p})"/>`
+ +T(364,90,22,BL,'11.5M',B)
+ +T(364,146,9.5,BLD,'changing hands freely &#10003;',B)
+ +(o.sub?T(364,159,9.5,BLD,o.sub,'class="d"'):'');
 
-const gate=()=>`<rect x="224" y="8" width="12" height="140" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
+const gate=()=>`<rect x="224" y="8" width="12" height="156" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
  +T(230,20,8,GR,'TURNSTILE','font-weight="bold" letter-spacing="1" class="h"');
 const aOut=(p,y,t)=>T(230,y-8,10,GR,t,BDH)+`<line x1="192" y1="${y}" x2="266" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
 const aIn =(p,y)=>T(230,y-8,10,GR,'in &#10003;',BDH)+`<line x1="266" y1="${y}" x2="192" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
-const aRed=(p,y)=>T(230,y-8,10,RD,'then: blocked',BDH)+`<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`+T(230,y+4,12,RD,'&#10007;','font-weight="bold" class="h"');
-const aGrey=(p,y)=>T(230,y-8,10,GYD,'in: sealed',BDH)+`<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`+T(230,y+4,12,GY,'&#10007;','font-weight="bold" class="h"');
+const aRed=(p,y)=>T(230,y-8,10,RD,'then: blocked',BDH)+`<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`+T(230,y+4,12,RD,'&#10007;',BH);
+const aGrey=(p,y)=>T(230,y-8,10,GYD,'in: sealed',BDH)+`<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`+T(230,y+4,12,GY,'&#10007;',BH);
 
 function meter(p,m){
- let s=`<text x="30" y="170" font-size="9" fill="#777" font-weight="bold" letter-spacing="1" class="d">TOTAL ZEC THAT CAN TRANSACT</text>`
-  +T(330,170,9,'#333','16M cap',B)+`<line x1="330" y1="173" x2="330" y2="196" stroke="#333" stroke-width="1.6"/>`
-  +`<rect x="30" y="176" width="215" height="15" fill="${BL}"/>`+T(137,187.5,9,'#fff','11.5M',B)
-  +`<rect x="245" y="176" width="85" height="15" fill="${OR}"/>`+T(287,187.5,9,'#fff','4.5M',B);
- if(m.over) s+=`<rect x="330" y="176" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
-  +T(361,187.5,9,RD,'+ ?','font-weight="bold" class="h"')
-  +`<text x="398" y="187.5" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
- s+=T(230,216,12,m.col,m.verdict,B);
+ let s=`<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
+  +T(330,186,9,'#333','16M cap',B)+`<line x1="330" y1="189" x2="330" y2="214" stroke="#333" stroke-width="1.6"/>`
+  +`<rect x="30" y="192" width="215" height="15" fill="${BL}"/>`+T(137,203.5,9,'#fff','11.5M',B)
+  +`<rect x="245" y="192" width="85" height="15" fill="${OR}"/>`+T(287,203.5,9,'#fff','4.5M',B);
+ if(m.over) s+=`<rect x="330" y="192" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+  +T(361,203.5,9,RD,'+ ?','font-weight="bold" class="h"')
+  +`<text x="398" y="203.5" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
+ s+=T(230,236,12,m.col,m.verdict,B);
  return s;
 }
 
 function svgPanel(P){
  const p=P.n;
  const defs='<defs>'+(P.cf?`<pattern id="h${p}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="7" stroke="${RD}" stroke-width="2"/></pattern>`:'')
-  +mk('g'+p,GR)+mk('r'+p,RD)+mk('x'+p,'#bbb')+'</defs>';
- return `<svg viewBox="0 0 460 226">${defs}${leftPool(p,P.left)}${rightPool(P.right)}${gate()}${P.flow}${meter(p,P.meter)}</svg>`;
+  +mk('g'+p,GR)+mk('r'+p,RD)+mk('x'+p,'#bbb')+mk('o'+p,ORD)+mk('b'+p,BL)+'</defs>';
+ return `<svg viewBox="0 0 460 248">${defs}<g class="zf">${leftPool(p,P.left)}${gate()}${P.flow}</g><g class="zr">${rightPool(p,P.right)}</g><g class="zm">${meter(p,P.meter)}</g></svg>`;
 }
 
 const PANELS=[
 {n:1,cf:false,
- left:{status:'moves freely inside &#10003;',sub:'all of it entered via the turnstile'},
+ left:{cap:'ZEC changes hands inside &#10003;',capCol:ORD,sub:'all of it entered via the turnstile'},
  right:{title:'Rest of Zcash',sub:''},
- flow:aOut(1,68,'out &#8804; 4.5M &#10003;')+aIn(1,124),
+ flow:aOut(1,72,'out &#8804; 4.5M &#10003;')+aIn(1,132),
  meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but not provable'},
- cap:'Everything in this picture is fine: 4.5M flowed in through the turnstile, 4.5M sits inside, and ZEC moves freely everywhere. But notice <b>what the picture rests on</b>: the amount inside Orchard. The pool is private &mdash; by design, no one can see that number. So today, this panel can be true without being <i>checkable</i>. You don&rsquo;t verify it; you assume it.'},
+ cap:'Everything here is healthy: 4.5M entered through the turnstile, 4.5M circulates inside, and the books balance. But notice what the picture rests on: the amount inside Orchard. The pool is private &mdash; by design, nobody can see that number. So today this panel can be <i>true</i> without being <i>checkable</i>. You don&rsquo;t verify it; you assume it.'},
 {n:2,cf:true,
- left:{split:true,status:'everything moves freely &#8212; counterfeit too'},
+ left:{split:true,cap:'counterfeit changes hands too',capCol:RD,sub:'invisible &amp; unbounded',subCol:RD},
  right:{title:'Rest of Zcash',sub:'protected by the turnstile'},
- flow:aOut(2,68,'out: first 4.5M &#10003;')+aRed(2,100)+aIn(2,138),
+ flow:aOut(2,72,'out: first 4.5M &#10003;')+aRed(2,106)+aIn(2,144),
  meter:{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'},
- cap:'The bug let an attacker mint ZEC from nothing, inside the pool, invisibly &mdash; the red <b>?</b>. Counterfeit spends exactly like real ZEC, so the supply bar breaks the 16M cap, by an amount nobody can measure. One mechanism still holds: the turnstile will only ever let 4.5M out, which protects the rest of Zcash. But it has a blind spot &mdash; it counts <b>amounts, not legitimacy</b>. Once 4.5M has exited, honest ZEC still inside is locked in (red &#10007;).'},
+ cap:'The bug let an attacker mint ZEC from nothing, inside the pool, invisibly &mdash; the red <b>?</b>. Here is the often-missed point: Orchard is part of the economy. Counterfeit changing hands <i>inside</i> the pool is real economic circulation &mdash; see the red arrow in its orbit &mdash; so the effective circulating supply is 16M&nbsp;+&nbsp;?: unlimited, and unmeasurable. The turnstile still protects the rest of Zcash (at most 4.5M can ever exit), but it counts <b>amounts, not legitimacy</b>: once 4.5M has exited, honest ZEC still inside is locked in (red &#10007;).'},
 {n:3,cf:false,
- left:{sealed:true,status:'sealed &#8212; exit is the only move',sub:'all of it can exit &#10003; &#8212; the budget matches',subCol:GR},
+ left:{sealed:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'all 4.5M can exit &#10003;',subCol:GR},
  right:{title:'Rest of Zcash + new pool',sub:'&#8594; 16M as users migrate'},
- flow:aOut(3,68,'out &#8804; 4.5M &#10003;')+aGrey(3,124),
+ flow:aOut(3,72,'out &#8804; 4.5M &#10003;')+aGrey(3,132),
  meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'},
- cap:'Ironwood seals the old pool: nothing enters, nothing moves inside &mdash; the only act left is to exit, through the same turnstile. Exactly 4.5M is inside and exactly 4.5M may leave, so <b>every user migrates out whole; nobody loses anything</b>. The bar is identical to today&rsquo;s &mdash; what changed is its status. &ldquo;&#8804; 16M&rdquo; is now enforced by consensus rules and verifiable by anyone running a node, <i>immediately at activation</i>, not after migration finishes.'},
+ cap:'Ironwood seals the old pool: nothing enters, and nothing changes hands inside &mdash; the orbits go quiet. The only act left is to exit through the turnstile. Exactly 4.5M is inside and exactly 4.5M may exit, so <b>every user migrates out whole; nobody loses anything</b>. The bar is the same as today&rsquo;s &mdash; what changed is its status: &ldquo;&#8804;&nbsp;16M&rdquo; is now enforced by consensus rules and verifiable by anyone running a node, immediately at activation.'},
 {n:4,cf:true,
- left:{sealed:true,split:true,status:'sealed &#8212; exit is the only move',sub:'first come, first served',subCol:RD},
+ left:{sealed:true,split:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'exit is first come, first served',subCol:RD},
  right:{title:'Rest of Zcash + new pool',sub:'+ at most 4.5M from Orchard'},
- flow:aOut(4,68,'out: first 4.5M &#10003;')+aRed(4,100)+aGrey(4,138),
+ flow:aOut(4,72,'out: first 4.5M &#10003;')+aRed(4,106)+aGrey(4,144),
  meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'},
- cap:'Whatever counterfeit exists is now locked in a sealed room whose only exit counts to 4.5M and then stops. The <b>?</b> can never reach the economy, so the cap holds <i>no matter how much was minted</i> &mdash; a guarantee that needs no trust in anyone&rsquo;s assessment. The price: the exit is first-come, first-served. If counterfeit leaves, an equal amount of honest ZEC stays behind forever (red &#10007;) &mdash; effectively destroyed. That risk is the bug&rsquo;s doing, not Ironwood&rsquo;s &mdash; which is why the advice is: <b>migrate early</b>.'}
+ cap:'Sealing is what stops the counterfeit: whatever the <b>?</b> is, it can no longer change hands &mdash; and the only exit counts to 4.5M and stops. The cap holds <i>no matter how much was minted</i>, with no trust in anyone&rsquo;s assessment. The price: the exit is first-come, first-served. If counterfeit exits, an equal amount of honest ZEC stays behind forever (red &#10007;) &mdash; effectively destroyed. That risk is the bug&rsquo;s doing, not Ironwood&rsquo;s. The advice it implies: <b>migrate early</b>.'}
 ];
 
 const cell=(P,col)=>`<div class="cell c-${col}" data-col="${col}">${svgPanel(P)}<div class="cap">${P.cap}</div></div>`;
 document.getElementById('grid').innerHTML=
  `<div></div>
-  <div class="colhead ch1 c-clean" data-col="clean">If the bug was never exploited<span>tap to zoom in</span></div>
-  <div class="colhead ch2 c-dirty" data-col="dirty">If counterfeiting happened<span>tap to zoom in</span></div>
+  <div class="colhead ch1 c-clean" data-col="clean">If the bug was never exploited<span></span></div>
+  <div class="colhead ch2 c-dirty" data-col="dirty">If counterfeiting happened<span></span></div>
   <div class="rowlab">TODAY</div>${cell(PANELS[0],'clean')}${cell(PANELS[1],'dirty')}
-  <div class="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing moves inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
+  <div class="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
   <div class="rowlab">AFTER IRONWOOD</div>${cell(PANELS[2],'clean')}${cell(PANELS[3],'dirty')}
-  <div class="legend"><b style="color:#c0392b">&#10007;</b> = the one rule that can hurt an honest user &nbsp;&middot;&nbsp;
-   <b style="color:#999">&#10007;</b> = disabled by design &nbsp;&middot;&nbsp;
+  <div class="legend">circling arrows = ZEC changing hands (economic circulation) &nbsp;&middot;&nbsp;
    <span style="color:#c0392b"><b>?</b></span> = counterfeit: maybe zero, maybe huge &nbsp;&middot;&nbsp;
-   the bottom bar breaks the 16M cap in exactly one of the four pictures</div>`;
+   <b style="color:#c0392b">&#10007;</b> = the one rule that can hurt an honest user &nbsp;&middot;&nbsp;
+   <b style="color:#999">&#10007;</b> = disabled by design &nbsp;&middot;&nbsp;
+   the bar breaks the 16M cap in exactly one of the four pictures</div>`;
 
 const STATUS={
- all:'The whole map. The bar at the bottom of each picture is the total ZEC that can change hands; the tick is the 16M that should exist. <b>Tap a column &mdash; or any picture &mdash; to zoom into the story you want to check.</b>',
+ all:'The whole map. Circling arrows mean an amount can change hands; the bar under each picture totals everything that can. <b>Tap a column &mdash; or any picture &mdash; to zoom in.</b>',
  clean:'Zoomed in: <b>assume the bug was never exploited.</b> Top: today this picture is true &mdash; but nothing enforces it, and you can&rsquo;t check it. Bottom: after Ironwood, the same picture becomes a provable fact.',
- dirty:'Zoomed in: <b>assume counterfeiting happened.</b> Top: today there is no limit on what can circulate, and no way to measure it. Bottom: after Ironwood the damage is capped at zero new supply &mdash; at a price paid only inside the old pool.'};
+ dirty:'Zoomed in: <b>assume counterfeiting happened.</b> Top: counterfeit circulates inside Orchard, so there is no limit on supply and no way to measure it. Bottom: after Ironwood it can never circulate again.'};
+const STATUSL={
+ all:'',
+ supply:'<b style="color:#2c5577">Spotlight on the supply:</b> watch the bar. It can pass the 16M tick in exactly one picture &mdash; today, if counterfeiting happened &mdash; because counterfeit <i>circulating inside Orchard</i> counts. After Ironwood the bar is pinned at &#8804;&nbsp;16M in both columns, provably.',
+ funds:'<b style="color:#9a5b15">Spotlight on honest users&rsquo; funds:</b> watch the Orchard pool and its turnstile. Honest ZEC is harmed in exactly one case: counterfeit exits first and honest ZEC left inside is trapped (red &#10007;). The bug created that risk, not Ironwood &mdash; and the defense is to migrate early.'};
 
 function setView(v){
  document.body.dataset.view=v;
  for(const [id,k] of [['b-all','all'],['b-clean','clean'],['b-dirty','dirty']])
   document.getElementById(id).setAttribute('aria-pressed',String(k===v));
  document.getElementById('status').innerHTML=STATUS[v];
+ document.querySelectorAll('.colhead').forEach(el=>
+  el.querySelector('span').textContent = v===el.dataset.col ? 'tap to zoom out — see the whole map' : 'tap to zoom in');
+}
+function setLens(v){
+ document.body.dataset.lens=v;
+ for(const [id,k] of [['l-all','all'],['l-supply','supply'],['l-funds','funds']])
+  document.getElementById(id).setAttribute('aria-pressed',String(k===v));
+ document.getElementById('statusL').innerHTML=STATUSL[v];
 }
 document.querySelectorAll('.colhead').forEach(el=>
  el.onclick=()=>setView(document.body.dataset.view===el.dataset.col?'all':el.dataset.col));
 document.querySelectorAll('.cell').forEach(el=>
  el.onclick=()=>{if(document.body.dataset.view==='all')setView(el.dataset.col)});
-setView('all');
+setView('all');setLens('all');
 </script>
 </body>
 </html>
