@@ -27,7 +27,6 @@
  .ans-after{border-color:#1a7a3a}
  .ans-after::after{border-top-color:#1a7a3a}
  .ans-after .alab{color:#1a7a3a}
- /* "same answer" chip: visibly lighter than a full answer */
  .answer.same{border-style:dashed;background:#f5f8f5;box-shadow:none;max-width:560px;
    font-size:13.5px;padding:8px 14px 10px}
  .answer.same::after{display:none}
@@ -175,7 +174,7 @@ const rightPool=(p,o)=>`<rect x="274" y="8" width="180" height="156" rx="6" fill
  +`<path d="M 409 104 A 45 16 0 0 1 319 104" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
  +T(364,90,22,BL,'11.5M',B)
  +T(364,146,9.5,BLD,'changing hands freely &#10003;',B)
- +(o.sub?T(364,159,9.5,BLD,o.sub,'class="d"'):'');
+ +(o.sub?T(364,159,9.5,BLD,o.sub):'');
 
 const gate=()=>`<rect x="224" y="8" width="12" height="156" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
  +T(230,20,8,GR,'TURNSTILE','font-weight="bold" letter-spacing="1" class="h"');
@@ -203,25 +202,26 @@ function svgPanel(P){
  return `<svg viewBox="0 0 460 248">${defs}<g class="zo">${leftPool(p,P.left)}</g><g class="zg">${gate()}${P.flow}</g><g class="zi">${P.flowIn}</g><g class="zr">${rightPool(p,P.right)}</g><g class="zm">${meter(p,P.meter)}</g></svg>`;
 }
 
+const PRIV='private &amp; public &#8212; every move proven &#10003;';
 const PANELS=[
 {n:1,cf:false,
  left:{cap:'ZEC changes hands inside &#10003;',capCol:ORD,sub:'all of it entered via the turnstile'},
- right:{title:'Rest of Zcash',sub:''},
+ right:{title:'Rest of Zcash',sub:PRIV},
  flow:aOut(1,72,'out &#8804; 4.5M &#10003;'),flowIn:aIn(1,132),
- meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but not provable'}},
+ meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but no longer provable'}},
 {n:2,cf:true,
  left:{split:true,cap:'counterfeit ZEC changes hands too',capCol:RD,sub:'invisible &amp; unbounded',subCol:RD},
- right:{title:'Rest of Zcash',sub:''},
+ right:{title:'Rest of Zcash',sub:PRIV},
  flow:aOut(2,72,'out: first 4.5M &#10003;')+aRed(2,106),flowIn:aIn(2,144),
  meter:{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'}},
 {n:3,cf:false,
  left:{sealed:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'all 4.5M can exit &#10003;',subCol:GR},
- right:{title:'Rest of Zcash + new pool',sub:'&#8594; 16M as users migrate'},
+ right:{title:'Rest of Zcash + new pool',sub:PRIV},
  flow:aOut(3,72,'out &#8804; 4.5M &#10003;'),flowIn:aGrey(3,132),
  meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}},
 {n:4,cf:true,
  left:{sealed:true,split:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'exit is first come, first served',subCol:RD},
- right:{title:'Rest of Zcash + new pool',sub:'+ at most 4.5M from Orchard'},
+ right:{title:'Rest of Zcash + new pool',sub:PRIV},
  flow:aOut(4,72,'out: first 4.5M &#10003;')+aRed(4,106),flowIn:aGrey(4,144),
  meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}}
 ];
@@ -245,28 +245,28 @@ today:{
  funds:{
   clean:GRN+'If the bug was never exploited</b>: <b>yes.</b> Exactly 4.5M honest ZEC is inside; the turnstile lets exactly 4.5M out. Everyone leaves whole.',
   dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M exits, the rest is blocked. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
-  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+').'},
+  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+'). And because the bug broke the proofs, no one can tell which happened.'},
  supply:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but unprovable.</b> The 16M rests on the amount inside Orchard, which is private. You assume it; you can&rsquo;t check it.',
-  dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> Counterfeit ZEC changing hands inside Orchard is real circulation: 16M&nbsp;+&nbsp;'+QR+'.',
-  all:'<b>No one can tell.</b> '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit. From outside the private pool, the two look identical.'},
+  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> Privacy never blocked verification: every Orchard move carried a proof that nothing was counterfeited. The bug means false proofs could have passed &mdash; so the proofs can&rsquo;t be trusted.',
+  dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> The bug let false proofs pass the verifier: counterfeit ZEC circulates as real money &mdash; 16M&nbsp;+&nbsp;'+QR+'.',
+  all:'<b>No one can tell &mdash; because of the bug, not because of privacy.</b> Every Orchard move carried a proof that nothing was counterfeited; the bug means false proofs could have passed. '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit.'},
  both:{
-  clean:GRN+'If the bug was never exploited</b>: <b>funds safe; supply 16M.</b> Both facts rest on the amount inside the private pool &mdash; true, but not checkable.',
+  clean:GRN+'If the bug was never exploited</b>: <b>funds safe; supply 16M.</b> But both facts rest on Orchard&rsquo;s proofs &mdash; and the bug means those proofs can&rsquo;t be trusted.',
   dirty:RDS+'If counterfeiting happened</b>: <b>supply: no limit (16M&nbsp;+&nbsp;'+QR+'). Funds: not guaranteed</b> &mdash; the first 4.5M exits, the rest is blocked ('+XR+').',
-  all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+').'}},
+  all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+'). The bug &mdash; not privacy &mdash; hides which is real.'}},
 after:{
  funds:{
   clean:{txt:'Ironwood doesn&rsquo;t change this: everyone still leaves whole.'},
   dirty:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'},
   all:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'}},
  supply:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and now provable.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it.',
+  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and provable again.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it. The new pool is just as private &mdash; proofs fixed, plus extra assurance: new audits and formal verification.',
   dirty:RDS+'If counterfeiting happened</b>: <b>yes &mdash; no matter how much was minted.</b> The '+QR+' can never change hands again; the only exit counts to 4.5M and stops.',
-  all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed; at most 4.5M can ever exit. &#8804;&nbsp;16M, verifiable by anyone running a node.'},
+  all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed; at most 4.5M can ever exit. Privacy continues in the new pool &mdash; proofs fixed, plus extra assurance: new audits and formal verification.'},
  both:{
-  clean:GRN+'If the bug was never exploited</b>: <b>supply: 16M, now provable. Funds: unchanged</b> &mdash; everyone leaves whole.',
+  clean:GRN+'If the bug was never exploited</b>: <b>supply: 16M, provable again. Funds: unchanged</b> &mdash; everyone leaves whole. The new pool is just as private.',
   dirty:RDS+'If counterfeiting happened</b>: <b>supply: now capped, provably. Funds: unchanged</b> &mdash; not guaranteed ('+XR+'); a risk created by the bug, not by Ironwood.',
-  all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; now enforced and verifiable. Funds: unchanged</b> &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.'}}};
+  all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; now enforced and verifiable, with privacy continuing in the new pool. Funds: unchanged</b> &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.'}}};
 
 const STATUSL={all:'',supply:'Watch the circling arrows and the supply bar.',
  funds:'Watch the Orchard pool and its turnstile.'};
