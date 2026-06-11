@@ -330,7 +330,7 @@
    function sizeSlots(){
    const sT=document.getElementById('slotToday'),sA=document.getElementById('slotAfter');
    sT.style.minHeight='';sA.style.minHeight='';
-   if(!concern||!window.matchMedia('(min-width:641px)').matches)return;
+   if(!concern)return;
    const v=document.body.dataset.view;
    let mT=0,mA=0;
    for(const c of ['funds','supply','both']){
