@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OUTLINE — Three Questions</title>
+<style>
+ body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;max-width:740px;margin:22px auto;
+   padding:0 14px;color:#222;background:#fafaf8;line-height:1.5}
+ .meta{background:#f3eefa;border:1.5px dashed #8a63b8;border-radius:10px;padding:10px 14px;
+   color:#6a4a98;font-size:13.5px;margin-bottom:26px}
+ .ph{height:12px;border-radius:6px;background:#e6e4de;margin:9px 0}
+ .note{color:#8a63b8;font-style:italic;font-size:13px;margin:6px 0 2px}
+ .verdict{display:inline-block;font-weight:700;border:2px dashed;border-radius:18px;
+   padding:6px 14px;font-size:13.5px;margin:2px 0 8px;font-style:italic}
+ .v-amber{border-color:#a86b00;color:#a86b00}.v-green{border-color:#1a7a3a;color:#1a7a3a}
+ .v-grey{border-color:#777;color:#777}
+ section{margin:40px 0 0;border-top:3px solid #ddd;padding-top:14px}
+ h1{font-size:20px;margin:0 0 4px;color:#999;letter-spacing:2px;text-align:center}
+ h2{font-size:19px;margin:2px 0 8px}
+ h2 .qn{color:#999;font-size:13px;letter-spacing:2px;display:block}
+ .step{display:flex;gap:12px;margin:22px 0 26px}
+ .num{flex:0 0 27px;height:27px;border-radius:50%;background:#444;color:#fff;font-weight:700;
+   display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:2px}
+ .step>div{flex:1;min-width:0}
+ figure{margin:10px 0 4px;background:#fff;border:1.5px solid #ddd;border-radius:10px;padding:10px 10px 6px}
+ figure.f-clean{border-color:rgba(26,122,58,.55)}
+ figure.f-dirty{border-color:rgba(192,57,43,.55)}
+ .tag{display:table;font-size:10.5px;font-weight:bold;padding:2px 10px;border-radius:9px;margin:0 auto 6px}
+ .t-clean{background:#eaf4ee;color:#1a5c30}.t-dirty{background:#fbeeec;color:#8c2418}
+ svg{width:100%;height:auto;display:block;max-width:560px;margin:0 auto}
+ svg text{font-family:inherit}
+ text.h{paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round}
+</style>
+</head>
+<body>
+
+<h1>POST OUTLINE</h1>
+<div class="meta"><b>How to read this outline:</b> grey bars are prose placeholders (length suggests rhythm);
+ violet bracketed notes describe what each piece of text must accomplish; the diagrams are real drafts.
+ Each question's section contains <i>only</i> the visual elements that question needs.</div>
+
+<div class="note">[title + byline]</div>
+<div class="ph" style="width:60%"></div>
+<div class="note">[lede: a bug existed, it's fixed, a network upgrade is proposed &mdash; and it raises exactly
+ three questions, answered below in order. No other framing.]</div>
+<div class="ph" style="width:95%"></div><div class="ph" style="width:88%"></div><div class="ph" style="width:45%"></div>
+
+<div class="note">[optional orientation figure &mdash; the three players. Cut if it slows readers down.]</div>
+<figure data-fig="d0"></figure>
+
+<!-- ================= Q1 ================= -->
+<section>
+ <h2><span class="qn">QUESTION 1</span>Was counterfeiting ever exploited?</h2>
+ <span class="verdict v-grey">[verdict first: Unknown today &mdash; and here is how evidence will emerge]</span>
+
+ <div class="step"><div class="num">1</div><div>
+  <div class="note">[the bug, minimum viable: inside the private pool, counterfeit ZEC <i>may</i> have been
+   minted from nothing. No turnstile, no supply meter, no rest-of-Zcash &mdash; just the pool and the doubt.]</div>
+  <figure data-fig="q1s1"></figure>
+  <div class="ph" style="width:90%"></div><div class="ph" style="width:62%"></div>
+ </div></div>
+
+ <div class="step"><div class="num">2</div><div>
+  <div class="note">[why nobody can answer: privacy makes the two worlds look identical from outside.
+   This is the honest heart of the question &mdash; the post should say "unknown" plainly, not hedge.]</div>
+  <figure data-fig="q1s2"></figure>
+  <div class="ph" style="width:93%"></div><div class="ph" style="width:81%"></div>
+ </div></div>
+
+ <div class="step"><div class="num">3</div><div>
+  <div class="note">[how evidence will emerge after the fix activates &mdash; forward reference to Ironwood;
+   caption must say "explained below". DECISION POINT: if this feels premature, move this step to the
+   end of the post instead. Outcome A accumulates evidence slowly; outcome B is instant public proof.]</div>
+  <figure data-fig="q1s3"></figure>
+  <div class="ph" style="width:95%"></div><div class="ph" style="width:88%"></div><div class="ph" style="width:40%"></div>
+ </div></div>
+</section>
+
+<!-- ================= Q2 ================= -->
+<section>
+ <h2><span class="qn">QUESTION 2</span>Will users get their funds back?</h2>
+ <span class="verdict v-amber">[verdict first: Probably &mdash; guaranteed in one world, first-come-first-served in the other]</span>
+
+ <div class="step"><div class="num">1</div><div>
+  <div class="note">[the one mechanism this answer hangs on: the turnstile counted 4.5M in, and will let
+   at most 4.5M out. It counts amounts, not legitimacy. No supply meter here &mdash; this is about <i>their coins</i>.]</div>
+  <figure data-fig="q2s1"></figure>
+  <div class="ph" style="width:88%"></div><div class="ph" style="width:55%"></div>
+ </div></div>
+
+ <div class="step"><div class="num">2</div><div>
+  <div class="note">[world one, told to completion: exactly 4.5M inside, exactly 4.5M may exit, everyone
+   leaves whole. A reader who believes this world can stop here satisfied.]</div>
+  <figure data-fig="q2s2"></figure>
+  <div class="ph" style="width:84%"></div><div class="ph" style="width:47%"></div>
+ </div></div>
+
+ <div class="step"><div class="num">3</div><div>
+  <div class="note">[world two, told straight: counterfeit competes for the same 4.5M exit; if it gets out
+   first, honest ZEC is trapped. Must include: this risk was created by the bug, not by the fix.]</div>
+  <figure data-fig="q2s3"></figure>
+  <div class="ph" style="width:91%"></div><div class="ph" style="width:86%"></div><div class="ph" style="width:38%"></div>
+ </div></div>
+</section>
+
+<!-- ================= Q3 ================= -->
+<section>
+ <h2><span class="qn">QUESTION 3</span>Is the 16M supply verifiable?</h2>
+ <span class="verdict v-green">[verdict first: Today, no. After Ironwood, yes &mdash; by anyone, immediately, in either world]</span>
+
+ <div class="step"><div class="num">1</div><div>
+  <div class="note">[today: the supply meter has an unmeasurable region. This is the only diagram in the
+   post that shows the full economy &mdash; because supply is the only question that's about the full economy.]</div>
+  <figure data-fig="q3s1"></figure>
+  <div class="ph" style="width:92%"></div><div class="ph" style="width:71%"></div>
+ </div></div>
+
+ <div class="step"><div class="num">2</div><div>
+  <div class="note">[what Ironwood actually does &mdash; one rule, stated as the hinge of the whole post:
+   the old pool is sealed; exit only.]</div>
+  <figure data-fig="q3s2"></figure>
+  <div class="ph" style="width:78%"></div>
+ </div></div>
+
+ <div class="step"><div class="num">3</div><div>
+  <div class="note">[after: the meter is capped <i>even in the worst case</i> &mdash; show the counterfeit-exists
+   world deliberately, so the guarantee doesn't depend on optimism. Verifiable by anyone running a node.]</div>
+  <figure data-fig="q3s3"></figure>
+  <div class="ph" style="width:94%"></div><div class="ph" style="width:83%"></div><div class="ph" style="width:50%"></div>
+ </div></div>
+</section>
+
+<section>
+ <div class="note">[conclusion: one paragraph &mdash; you don't need to know which world is real to verify
+   the supply; that's the point. + acknowledgements / link to proposal]</div>
+ <div class="ph" style="width:90%"></div><div class="ph" style="width:84%"></div><div class="ph" style="width:30%"></div>
+</section>
+
+<script>
+ /* ---- shared visual vocabulary (same assets as the interactive version) ---- */
+ const OR='#e8923a',ORD='#9a5b15',BL='#4878a8',BLD='#2c5577',GR='#1a7a3a',RD='#c0392b',GY='#999',GYD='#777',AM='#a86b00';
+ const B='font-weight="bold"',BH='font-weight="bold" class="h"',BDH='font-weight="bold" class="d h"';
+ const T=(x,y,s,f,c,e='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
+ const mk=(id,f)=>`<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
+ const SOLID=' pathLength="100" stroke-dasharray="87 13"';
+ const DASHED=' pathLength="100" stroke-dasharray="5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 6 13"';
+
+ function leftPool(p,o){
+   const sl=o.sealed, dash=sl?DASHED:SOLID;
+   const arc=(d,col,m)=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="2.2"${dash} marker-end="url(#${m}${p})"/>`;
+   let s=`<rect x="6" y="8" width="180" height="156" rx="6" fill="${sl?'#f4f4f4':'#fff7ef'}" stroke="${sl?'#999':OR}" stroke-width="1.6"/>`
+        +T(96,26,11.5,sl?'#555':ORD,'Orchard pool'+(sl?' &#8212; sealed':''),B);
+   if(o.split){
+     s+=arc('M 54 56 A 42 16 0 0 1 138 56',sl?'#c4c4c4':ORD,sl?'x':'o')
+       +arc('M 138 112 A 42 16 0 0 1 54 112',sl?'#c4c4c4':RD,sl?'x':'r')
+       +`<rect x="16" y="62" width="76" height="44" rx="3" fill="${OR}"/>`
+       +T(54,82,12,'#fff','4.5M',B)+T(54,97,8.5,'#fff','honest')
+       +`<rect x="100" y="62" width="72" height="44" rx="3" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+       +`<circle cx="136" cy="84" r="11" fill="#fff" stroke="${RD}"/>`+T(136,88,12,RD,'?',B);
+     if(sl)s+=T(96,46,12,GY,'&#10007;',BH)+T(96,130,12,GY,'&#10007;',BH);
+   }else{
+     s+=arc('M 51 60 A 45 16 0 0 1 141 60',sl?'#c4c4c4':ORD,sl?'x':'o')
+       +arc('M 141 104 A 45 16 0 0 1 51 104',sl?'#c4c4c4':ORD,sl?'x':'o')
+       +T(96,90,22,OR,'4.5M',B);
+     if(sl)s+=T(96,50,12,GY,'&#10007;',BH)+T(96,122,12,GY,'&#10007;',BH);
+   }
+   s+=T(96,146,9.5,o.capCol,o.cap,B)
+     +(o.sub?T(96,159,9.5,o.subCol||'#666',o.sub):'');
+   return s;
+ }
+ const rightPool=(p,o)=>`<rect x="274" y="8" width="180" height="156" rx="6" fill="#eef4fa" stroke="${BL}" stroke-width="1.6"/>`
+   +T(364,26,11.5,BLD,o.title,B)
+   +`<path d="M 319 60 A 45 16 0 0 1 409 60" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
+   +`<path d="M 409 104 A 45 16 0 0 1 319 104" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
+   +T(364,90,22,BL,'11.5M',B)
+   +T(364,146,9.5,BLD,'changing hands freely &#10003;',B)
+   +(o.sub?T(364,159,9.5,BLD,o.sub):'');
+ const gate=()=>`<rect x="224" y="8" width="12" height="156" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
+   +T(230,20,8,GR,'TURNSTILE','font-weight="bold" letter-spacing="1" class="h"');
+ const aOut=(p,y,t)=>T(230,y-8,10,GR,t,BDH)+`<line x1="192" y1="${y}" x2="266" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+ const aIn =(p,y)=>T(230,y-8,10,GR,'in &#10003;',BDH)+`<line x1="266" y1="${y}" x2="192" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+ const aRed=(p,y)=>T(230,y-8,10,RD,'then: blocked',BDH)+`<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`+T(230,y+4,12,RD,'&#10007;',BH);
+ const aGrey=(p,y)=>T(230,y-8,10,GYD,'in: sealed',BDH)+`<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`+T(230,y+4,12,GY,'&#10007;',BH);
+ function meter(p,m){
+   let s=`<rect x="24" y="173" width="412" height="71" rx="8" fill="#f2f7fc" stroke="#2c5577" stroke-width="1.5"/>`
+        +`<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
+        +T(330,186,9,'#333','16M cap',B)+`<line x1="330" y1="189" x2="330" y2="214" stroke="#333" stroke-width="1.6"/>`
+        +`<rect x="30" y="192" width="215" height="15" fill="${BL}"/>`+T(137,203.5,9,'#fff','11.5M',B)
+        +`<rect x="245" y="192" width="85" height="15" fill="${OR}"/>`+T(287,203.5,9,'#fff','4.5M',B);
+   if(m.over) s+=`<rect x="330" y="192" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+        +T(361,203.5,9,RD,'+ ?','font-weight="bold" class="h"')
+        +`<text x="398" y="203.5" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
+   s+=T(230,236,12,m.col,m.verdict,B);
+   return s;
+ }
+ const defs=(p,hatch)=>'<defs>'+(hatch?`<pattern id="h${p}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="7" stroke="${RD}" stroke-width="2"/></pattern>`:'')
+   +mk('g'+p,GR)+mk('r'+p,RD)+mk('x'+p,'#bbb')+mk('o'+p,ORD)+mk('b'+p,BL)+'</defs>';
+ const sv=(p,vb,hatch,body)=>`<svg viewBox="${vb}">${defs(p,hatch)}${body}</svg>`;
+
+ /* ---- the figures: each contains ONLY what its question needs ---- */
+ const FIGS={
+  /* orientation (optional): the three players, nothing else */
+  d0:{svg:sv(0,'0 0 460 172',false,
+    leftPool(0,{cap:'ZEC changes hands inside &#10003;',capCol:ORD})
+    +gate()+aOut(0,72,'out')+aIn(0,132)
+    +rightPool(0,{title:'Rest of Zcash'}))},
+
+  /* Q1.1 — the bug: just the pool and the doubt */
+  q1s1:{svg:sv(1,'0 0 192 172',true,
+    leftPool(1,{split:true,cap:'counterfeit ZEC may exist',capCol:RD,sub:'minted invisibly, from nothing',subCol:RD}))},
+
+  /* Q1.2 — two worlds, identical from outside */
+  q1s2:{svg:sv(2,'0 0 460 196',true,
+    T(96,12,9.5,'#1a5c30','if the bug was never exploited',B)
+    +T(364,12,9.5,'#8c2418','if counterfeiting happened',B)
+    +`<g transform="translate(0,16)">`+leftPool(2,{cap:'only honest ZEC',capCol:ORD})+`</g>`
+    +`<g transform="translate(268,16)">`+leftPool(2,{split:true,cap:'counterfeit moves too',capCol:RD})+`</g>`
+    +`<ellipse cx="230" cy="86" rx="16" ry="10" fill="#fff" stroke="${GYD}" stroke-width="1.6"/>`
+    +`<circle cx="230" cy="86" r="4.5" fill="${GYD}"/>`
+    +`<line x1="212" y1="86" x2="190" y2="86" stroke="${GYD}" stroke-dasharray="3,3"/>`
+    +`<line x1="248" y1="86" x2="270" y2="86" stroke="${GYD}" stroke-dasharray="3,3"/>`
+    +T(230,110,8.5,GYD,'the outside view:',B)+T(230,121,8.5,GYD,'identical',B))},
+
+  /* Q1.3 — the two possible futures, after the seal */
+  q1s3:{svg:sv(3,'0 0 560 212',true,
+    T(135,12,9.5,GR,'POSSIBLE FUTURE A','font-weight="bold" letter-spacing="1"')
+    +T(425,12,9.5,RD,'POSSIBLE FUTURE B','font-weight="bold" letter-spacing="1"')
+    +`<g transform="translate(0,18)">`+leftPool(3,{sealed:true,cap:'all 4.5M exits &#10003;',capCol:GR})
+      +gate()+aOut(3,72,'out &#8804; 4.5M &#10003;')+`</g>`
+    +`<g transform="translate(290,18)">`+leftPool(3,{sealed:true,split:true,cap:'excess tries to exit',capCol:RD})
+      +gate()+aOut(3,72,'out: first 4.5M &#10003;')+aRed(3,106)+`</g>`
+    +T(135,202,9.5,GR,'growing evidence: nothing was minted',B)
+    +T(425,202,9.5,RD,'public proof: counterfeiting happened',B))},
+
+  /* Q2.1 — the turnstile, the whole mechanism */
+  q2s1:{svg:sv(4,'0 0 280 172',false,
+    leftPool(4,{cap:'4.5M entered &#10003;',capCol:ORD,sub:'counted in by the turnstile'})
+    +gate()+aOut(4,72,'out &#8804; 4.5M')+aIn(4,132))},
+
+  /* Q2.2 — world one: whole */
+  q2s2:{tag:'clean',svg:sv(5,'0 0 280 172',false,
+    leftPool(5,{sealed:true,cap:'all 4.5M can exit &#10003;',capCol:GR})
+    +gate()+aOut(5,72,'out &#8804; 4.5M &#10003;')+aGrey(5,132))},
+
+  /* Q2.3 — world two: first come, first served */
+  q2s3:{tag:'dirty',svg:sv(6,'0 0 280 172',true,
+    leftPool(6,{sealed:true,split:true,cap:'exit is first come, first served',capCol:RD,sub:'honest ZEC can be trapped &#10007;',subCol:RD})
+    +gate()+aOut(6,72,'out: first 4.5M &#10003;')+aRed(6,106)+aGrey(6,144))},
+
+  /* Q3.1 — today: the full economy, unverifiable */
+  q3s1:{svg:sv(7,'0 0 460 248',true,
+    leftPool(7,{split:true,cap:'counterfeit ZEC changes hands too',capCol:RD,sub:'invisible &amp; unbounded',subCol:RD})
+    +gate()+aOut(7,72,'out: first 4.5M &#10003;')+aRed(7,106)+aIn(7,144)
+    +rightPool(7,{title:'Rest of Zcash'})
+    +meter(7,{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'}))},
+
+  /* Q3.2 — the one rule */
+  q3s2:{svg:sv(9,'0 0 460 64',false,
+    `<rect x="2" y="8" width="456" height="48" rx="10" fill="${GR}"/>`
+    +T(230,29,13,'#fff','&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503;',B)
+    +T(230,45,9.5,'#dff0e5','old pool sealed: nothing enters, nothing moves inside &mdash; exit only'))},
+
+  /* Q3.3 — after: capped even in the worst case */
+  q3s3:{svg:sv(8,'0 0 460 248',true,
+    leftPool(8,{sealed:true,split:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'whatever the ? is, it&rsquo;s contained',subCol:RD})
+    +gate()+aOut(8,72,'out: first 4.5M &#10003;')+aRed(8,106)+aGrey(8,144)
+    +rightPool(8,{title:'Rest of Zcash + new pool'})
+    +meter(8,{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}))}
+ };
+ const TAGS={clean:'if the bug was never exploited',dirty:'if counterfeiting happened'};
+ document.querySelectorAll('[data-fig]').forEach(el=>{
+   const f=FIGS[el.dataset.fig];
+   el.classList.toggle('f-clean',f.tag==='clean');
+   el.classList.toggle('f-dirty',f.tag==='dirty');
+   el.innerHTML=(f.tag?`<div class="tag t-${f.tag}">${TAGS[f.tag]}</div>`:'')+f.svg;
+ });
+</script>
+</body>
+</html>
