@@ -30,7 +30,10 @@
      .answer.same{border-style:dashed;background:#f5f8f5;box-shadow:none;max-width:560px;
        font-size:13.5px;padding:8px 14px 10px}
      .answer.same::after{display:none}
-     .slot{display:flex;flex-direction:column;justify-content:flex-end}
+     .slot{display:grid}
+     .slot>.svar{grid-area:1/1;visibility:hidden;min-width:0;
+       display:flex;flex-direction:column;justify-content:flex-end}
+     .slot>.svar.on{visibility:visible}
      .grid .slot{grid-column:1/-1}
 
      /* ---- top bar: the one question ---- */
@@ -115,7 +118,7 @@
 
      /* ---- stage gating ---- */
      body[data-stage="step1"] .btns,body[data-stage="step1"] .statusL,
-     body[data-stage="step1"] #ansToday,body[data-stage="step1"] .grid,body[data-stage="step1"] .foot{display:none}
+     body[data-stage="step1"] #slotToday,body[data-stage="step1"] .grid,body[data-stage="step1"] .foot{display:none}
      body[data-stage="today"] #wiz,body[data-stage="full"] #wiz{display:none}
      body[data-stage="today"] .g-bot{display:none}
      @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -150,10 +153,7 @@
       <button id="l-all" onclick="setConcern('both')">Both</button>
     </div></div>
 
-    <div class="slot" id="slotToday">
-      <p class="statusL" id="statusL"></p>
-      <div class="answer" id="ansToday"><span class="alab" id="ansTodayLab"></span><span id="ansTodayTxt"></span></div>
-    </div>
+    <div class="slot" id="slotToday"></div>
 
     <div class="grid" id="grid"></div>
 
@@ -255,7 +255,9 @@
       `<div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
       <div class="bigwrap"><button class="bigbtn" id="iwbtn" onclick="toggleIW()"></button></div>
       <div class="band g-bot" id="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
-      <div class="slot g-bot" id="slotAfter"><div class="answer ans-after" id="ansAfter"><span class="alab" id="ansAfterLab"></span><span id="ansAfterTxt"></span></div></div>
+
+      <div class="slot g-bot" id="slotAfter"></div>
+
       <div class="rowlab g-bot">AFTER IRONWOOD</div>${cell(PANELS[2],'clean','g-bot')}${cell(PANELS[3],'dirty','g-bot')}`;
 
       /* ---------- answers ---------- */
@@ -298,79 +300,54 @@
   let concern=null;
   const C2L={funds:'funds',supply:'supply',both:'all'};
 
-  function renderAns(){
-  if(!concern)return;
-  const b=document.body.dataset.view;
-  document.getElementById('ansTodayLab').innerHTML=QLAB[concern];
-  document.getElementById('ansTodayTxt').innerHTML=ANS.today[concern][b];
-  const aft=ANS.after[concern][b], box=document.getElementById('ansAfter');
-  if(typeof aft==='object'){
-  box.classList.add('same');
-  document.getElementById('ansAfterLab').innerHTML=QLAB[concern]+' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY';
-  document.getElementById('ansAfterTxt').innerHTML=aft.txt;
-  }else{
-  box.classList.remove('same');
-  document.getElementById('ansAfterLab').innerHTML=QLAB[concern];
-  document.getElementById('ansAfterTxt').innerHTML=aft;
-  }
-  }
-  /* reserve space for the tallest answer so the diagram never moves (desktop only) */
-  function sizeSlots(){
-  const sT=document.getElementById('slotToday'),sA=document.getElementById('slotAfter');
-  sT.style.minHeight='';sA.style.minHeight='';
-  if(!concern)return;
-  const v=document.body.dataset.view;
-  let mT=0,mA=0;
-  for(const c of ['funds','supply','both']){
-  document.getElementById('statusL').innerHTML=STATUSL[C2L[c]];
-  document.getElementById('ansTodayLab').innerHTML=QLAB[c];
-  document.getElementById('ansTodayTxt').innerHTML=ANS.today[c][v];
-  const aft=ANS.after[c][v],box=document.getElementById('ansAfter');
-  const same=typeof aft==='object';
-  box.classList.toggle('same',same);
-  document.getElementById('ansAfterLab').innerHTML=same?QLAB[c]+' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY':QLAB[c];
-  document.getElementById('ansAfterTxt').innerHTML=same?aft.txt:aft;
-  mT=Math.max(mT,sT.offsetHeight);mA=Math.max(mA,sA.offsetHeight);
-  }
-  sT.style.minHeight=mT+'px';if(mA)sA.style.minHeight=mA+'px';
-  document.getElementById('statusL').innerHTML=STATUSL[C2L[concern]];
-  renderAns();
-  }
-  window.addEventListener('resize',sizeSlots);
-  function setConcern(c){
-  concern=c;
-  const lens=C2L[c];
-  document.body.dataset.lens=lens;
-  for(const [id,k] of [['l-funds','funds'],['l-supply','supply'],['l-all','both']])
-  document.getElementById(id).setAttribute('aria-pressed',String(k===c));
-  document.getElementById('statusL').innerHTML=STATUSL[lens];
-  renderAns();
-  sizeSlots();
-  if(document.body.dataset.stage==='step1'){
-  setStage('today');window.scrollTo({top:0,behavior:'smooth'});}
-  }
-  function setView(v){
-  document.body.dataset.view=v;
-  renderAns();
-  sizeSlots();
-  }
-  function setStage(s){
-  document.body.dataset.stage=s;
-  const b=document.getElementById('iwbtn');
-  b.innerHTML = s==='full' ? '&#8593;&nbsp; Back to today &mdash; before Ironwood'
-  : 'What will change when Ironwood activates? &nbsp;&#8595;';
-  b.classList.toggle('open',s==='full');
-  sizeSlots();
-  }
-  function toggleIW(){
-  if(document.body.dataset.stage==='full'){setStage('today');}
-  else{setStage('full');
-  setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
-  }
-  document.querySelectorAll('.cell').forEach(el=>
-  el.onclick=()=>{const v=document.body.dataset.view;
-  setView(v==='all'?el.dataset.col:'all');});
-  setView('all');setStage('step1');
+  function buildSlots(){
+  let hT='',hA='';
+  for(const c of ['funds','supply','both'])for(const v of ['all','clean','dirty']){
+  hT+=`<div class="svar" data-k="${c}|${v}"><p class="statusL">${STATUSL[C2L[c]]}</p>`
+        +`<div class="answer"><span class="alab">${QLAB[c]}</span><span>${ANS.today[c][v]}</span></div></div>`;
+      const aft=ANS.after[c][v],same=typeof aft==='object';
+      hA+=`<div class="svar" data-k="${c}|${v}"><div class="answer ans-after${same?' same':''}">`
+        +`<span class="alab">${QLAB[c]}${same?' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY':''}</span>`
+        +`<span>${same?aft.txt:aft}</span></div></div>`;
+      }
+      document.getElementById('slotToday').innerHTML=hT;
+      document.getElementById('slotAfter').innerHTML=hA;
+      }
+      function renderAns(){
+      if(!concern)return;
+      const k=concern+'|'+document.body.dataset.view;
+      document.querySelectorAll('.svar').forEach(el=>el.classList.toggle('on',el.dataset.k===k));
+      }
+      function setConcern(c){
+      concern=c;
+      document.body.dataset.lens=C2L[c];
+      for(const [id,k] of [['l-funds','funds'],['l-supply','supply'],['l-all','both']])
+      document.getElementById(id).setAttribute('aria-pressed',String(k===c));
+      renderAns();
+      if(document.body.dataset.stage==='step1'){
+      setStage('today');window.scrollTo({top:0,behavior:'smooth'});}
+      }
+      function setView(v){
+      document.body.dataset.view=v;
+      renderAns();
+      }
+      function setStage(s){
+      document.body.dataset.stage=s;
+      const b=document.getElementById('iwbtn');
+      b.innerHTML = s==='full' ? '&#8593;&nbsp; Back to today &mdash; before Ironwood'
+      : 'What will change when Ironwood activates? &nbsp;&#8595;';
+      b.classList.toggle('open',s==='full');
+      }
+      function toggleIW(){
+      if(document.body.dataset.stage==='full'){setStage('today');}
+      else{setStage('full');
+      setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
+      }
+      document.querySelectorAll('.cell').forEach(el=>
+      el.onclick=()=>{const v=document.body.dataset.view;
+      setView(v==='all'?el.dataset.col:'all');});
+      buildSlots();
+      setView('all');setStage('step1');
     </script>
   </body>
 </html>
