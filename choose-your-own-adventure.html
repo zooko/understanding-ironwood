@@ -225,16 +225,16 @@ const PANELS=[
 const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}">${svgPanel(P)}</div>`;
 document.getElementById('grid').innerHTML=
  `<div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
-  <div class="bigwrap"><button class="bigbtn" id="iwbtn" onclick="toggleIW()"></button></div>
-  <div class="band g-bot" id="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
-  <div class="answer ans-after g-bot" id="ansAfter"><span class="alab" id="ansAfterLab"></span><span id="ansAfterTxt"></span></div>
-  <div class="rowlab g-bot">AFTER IRONWOOD</div>${cell(PANELS[2],'clean','g-bot')}${cell(PANELS[3],'dirty','g-bot')}
-  <div class="legend g-bot"><span style="color:#1a7a3a;font-weight:bold">green frame</span> = if the bug was never exploited &nbsp;&middot;&nbsp;
+  <div class="legend"><span style="color:#1a7a3a;font-weight:bold">green frame</span> = if the bug was never exploited &nbsp;&middot;&nbsp;
    <span style="color:#c0392b;font-weight:bold">red frame</span> = if counterfeiting happened &nbsp;&middot;&nbsp;
    circling arrows = ZEC changing hands &nbsp;&middot;&nbsp;
    <span style="color:#c0392b"><b>?</b></span> = counterfeit ZEC: maybe zero, maybe huge &nbsp;&middot;&nbsp;
    <b style="color:#c0392b">&#10007;</b> = honest ZEC trapped &nbsp;&middot;&nbsp;
-   <b style="color:#999">&#10007;</b> = disabled by design</div>`;
+   <b style="color:#999">&#10007;</b> = disabled by design</div>
+  <div class="bigwrap"><button class="bigbtn" id="iwbtn" onclick="toggleIW()"></button></div>
+  <div class="band g-bot" id="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
+  <div class="answer ans-after g-bot" id="ansAfter"><span class="alab" id="ansAfterLab"></span><span id="ansAfterTxt"></span></div>
+  <div class="rowlab g-bot">AFTER IRONWOOD</div>${cell(PANELS[2],'clean','g-bot')}${cell(PANELS[3],'dirty','g-bot')}`;
 
 /* ---------- answers ---------- */
 const GRN='<b style="color:#1a7a3a">',RDS='<b style="color:#c0392b">';
