@@ -86,13 +86,19 @@
  svg{width:100%;height:auto;display:block}
  svg text{font-family:inherit}
  text.h{paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round}
- svg .d{opacity:0;transition:opacity .45s .35s}
- body[data-view="clean"] .c-clean svg .d,
- body[data-view="dirty"] .c-dirty svg .d{opacity:1}
+
  svg .zo,svg .zg,svg .zi,svg .zr,svg .zm{transition:opacity .45s}
+ /* funds lens: only the Orchard pool and its exit stay lit */
  body[data-lens="funds"] svg .zr,
  body[data-lens="funds"] svg .zm,
  body[data-lens="funds"] svg .zi{opacity:.15}
+ /* supply lens: the bar is the verdict; the rest is the supporting argument */
+ body[data-lens="supply"] svg .zo,
+ body[data-lens="supply"] svg .zr,
+ body[data-lens="supply"] svg .zg{opacity:.55}
+ body[data-lens="supply"] svg .zi{opacity:.3}
+ svg .mhl{opacity:0;transition:opacity .45s}
+ body[data-lens="supply"] svg .mhl{opacity:1}
 
  .band{grid-column:1/4;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;
    padding:8px 10px;font-size:13.5px;font-weight:bold}
@@ -183,17 +189,18 @@ const aIn =(p,y)=>T(230,y-8,10,GR,'in &#10003;',BDH)+`<line x1="266" y1="${y}" x
 const aRed=(p,y)=>T(230,y-8,10,RD,'then: blocked',BDH)+`<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`+T(230,y+4,12,RD,'&#10007;',BH);
 const aGrey=(p,y)=>T(230,y-8,10,GYD,'in: sealed',BDH)+`<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`+T(230,y+4,12,GY,'&#10007;',BH);
 
-function meter(p,m){
- let s=`<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
-  +T(330,186,9,'#333','16M cap',B)+`<line x1="330" y1="189" x2="330" y2="214" stroke="#333" stroke-width="1.6"/>`
-  +`<rect x="30" y="192" width="215" height="15" fill="${BL}"/>`+T(137,203.5,9,'#fff','11.5M',B)
-  +`<rect x="245" y="192" width="85" height="15" fill="${OR}"/>`+T(287,203.5,9,'#fff','4.5M',B);
- if(m.over) s+=`<rect x="330" y="192" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
-  +T(361,203.5,9,RD,'+ ?','font-weight="bold" class="h"')
-  +`<text x="398" y="203.5" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
- s+=T(230,236,12,m.col,m.verdict,B);
- return s;
-}
+ function meter(p,m){
+   let s=`<rect class="mhl" x="24" y="173" width="412" height="71" rx="8" fill="#f2f7fc" stroke="#2c5577" stroke-width="1.5"/>`
+        +`<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
+        +T(330,186,9,'#333','16M cap',B)+`<line x1="330" y1="189" x2="330" y2="214" stroke="#333" stroke-width="1.6"/>`
+        +`<rect x="30" y="192" width="215" height="15" fill="${BL}"/>`+T(137,203.5,9,'#fff','11.5M',B)
+        +`<rect x="245" y="192" width="85" height="15" fill="${OR}"/>`+T(287,203.5,9,'#fff','4.5M',B);
+   if(m.over) s+=`<rect x="330" y="192" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+                +T(361,203.5,9,RD,'+ ?','font-weight="bold" class="h"')
+                +`<text x="398" y="203.5" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
+   s+=T(230,236,12,m.col,m.verdict,B);
+   return s;
+ }
 
 function svgPanel(P){
  const p=P.n;
@@ -245,7 +252,7 @@ today:{
  funds:{
   clean:GRN+'If the bug was never exploited</b>: <b>yes.</b> Exactly 4.5M honest ZEC is inside; the turnstile lets exactly 4.5M out. Everyone leaves whole.',
   dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M exits, the rest is blocked. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
-  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+'). And because the bug broke the proofs, no one can tell which happened.'},
+  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+').'},
  supply:{
   clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> Every Orchard transaction carried a proof that nothing was counterfeited, but the bug means false proofs could have passed &mdash; so the proofs can&rsquo;t be trusted.',
   dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> The bug let false proofs pass the verifier: counterfeit ZEC circulates as real money &mdash; 16M&nbsp;+&nbsp;'+QR+'.',
@@ -268,11 +275,11 @@ after:{
   dirty:RDS+'If counterfeiting happened</b>: <b>supply: now capped, provably. Funds: unchanged</b> &mdash; not guaranteed ('+XR+'); a risk created by the bug, not by Ironwood.',
   all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; now enforced and verifiable, with privacy continuing in the new pool. Funds: unchanged</b> &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.'}}};
 
-const STATUSL={all:'',supply:'Watch the circling arrows and the supply bar.',
- funds:'Watch the Orchard pool and its turnstile.'};
+ const STATUSL={all:'',supply:'The supply bar is the verdict &mdash; the rest of the picture is the argument for it.',
+                funds:'Watch the Orchard pool and its turnstile.'};
 
-/* ---------- state ---------- */
-let concern=null;
+ /* ---------- state ---------- */
+ let concern=null;
 const C2L={funds:'funds',supply:'supply',both:'all'};
 
 function renderAns(){
