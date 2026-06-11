@@ -123,22 +123,27 @@
      body[data-stage="today"] .g-bot{display:none}
      @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-     /* ---- mobile: stack the comparison instead of shrinking it ---- */
-     /* ---- mobile: stack the comparison instead of shrinking it ---- */
+     /* ---- mobile: stack the comparison; each scenario is an independent accordion ---- */
      @media (max-width:640px){
        .grid,body[data-view="clean"] .grid,body[data-view="dirty"] .grid{
          grid-template-columns:1fr;transition:none}
        .rowlab{writing-mode:horizontal-tb;transform:none;padding:5px 10px;
          letter-spacing:3px;font-size:10.5px}
-       /* zoom on mobile = collapse the other scenario to its title chip */
+       /* collapsed = title chip */
        .cell svg{max-height:345px;transition:max-height .55s cubic-bezier(.45,0,.2,1),opacity .35s}
-       body[data-view="clean"] .c-dirty,body[data-view="dirty"] .c-clean{
+       body[data-view="dirty"] .c-clean,body[data-view="none"] .c-clean,
+       body[data-view="clean"] .c-dirty,body[data-view="none"] .c-dirty{
          opacity:1;pointer-events:auto;cursor:zoom-in}
-       body[data-view="clean"] .c-dirty svg,body[data-view="dirty"] .c-clean svg{
+       body[data-view="dirty"] .c-clean svg,body[data-view="none"] .c-clean svg,
+       body[data-view="clean"] .c-dirty svg,body[data-view="none"] .c-dirty svg{
          max-height:0;opacity:0}
-       body[data-view="clean"] .c-dirty .tag,body[data-view="dirty"] .c-clean .tag{opacity:.75}
-       /* the collapsed chip's action is zoom-IN, so give it the plus icon back */
-       body[data-view="clean"] .c-dirty::after,body[data-view="dirty"] .c-clean::after{background-image:
+       body[data-view="dirty"] .c-clean .tag,body[data-view="none"] .c-clean .tag,
+       body[data-view="clean"] .c-dirty .tag,body[data-view="none"] .c-dirty .tag{opacity:.75}
+       /* icons: expanded cell = minus (collapse me), collapsed chip = plus (expand me) */
+       .cell::after{background-image:
+         url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/></svg>')}
+       body[data-view="dirty"] .c-clean::after,body[data-view="none"] .c-clean::after,
+       body[data-view="clean"] .c-dirty::after,body[data-view="none"] .c-dirty::after{background-image:
          url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/><line x1="8" y1="5.2" x2="8" y2="10.8" stroke="%23555" stroke-width="1.8"/></svg>')}
        body:not([data-view="all"]) .grid{max-width:none}
        .answer{font-size:14px}
@@ -147,7 +152,7 @@
   </head>
   <body data-view="all" data-lens="all" data-stage="step1">
 
-    <h1>The Vulnerability (v6)</h1>
+    <h1>The Vulnerability (v7)</h1>
 
     <div id="wiz" class="qcard">
       <h2>What&rsquo;s your question?</h2>
@@ -324,7 +329,8 @@
      }
      function renderAns(){
        if(!concern)return;
-       const k=concern+'|'+document.body.dataset.view;
+       const v=document.body.dataset.view;
+       const k=concern+'|'+(v==='none'?'all':v);
        document.querySelectorAll('.svar').forEach(el=>el.classList.toggle('on',el.dataset.k===k));
      }
      function setConcern(c){
@@ -353,8 +359,21 @@
          setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
      }
      document.querySelectorAll('.cell').forEach(el=>
-       el.onclick=()=>{const v=document.body.dataset.view,c=el.dataset.col;
-         setView(v===c?'all':c);});
+       el.onclick=()=>{
+         const v=document.body.dataset.view,c=el.dataset.col;
+         if(window.matchMedia('(max-width:640px)').matches){
+           /* accordion: flip only this card's bit */
+           let oc=(v==='all'||v==='clean'),od=(v==='all'||v==='dirty');
+           if(c==='clean')oc=!oc;else od=!od;
+           setView(oc&&od?'all':oc?'clean':od?'dirty':'none');
+         }else{
+           /* desktop zoom: unchanged */
+           setView(v===c?'all':c);
+         }
+     });
+     window.addEventListener('resize',()=>{
+       if(document.body.dataset.view==='none'&&window.matchMedia('(min-width:641px)').matches)setView('all');
+     });
      buildSlots();
      setView('all');setStage('step1');
     </script>
