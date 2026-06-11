@@ -24,6 +24,7 @@
      .answer::after{content:"";position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);
        border:11px solid transparent;border-bottom:none;border-top:11px solid #a86b00}
      .answer .alab{display:block;font-size:10px;font-weight:bold;letter-spacing:1.5px;color:#a86b00;margin-bottom:4px}
+     .answer .ln{display:block;margin-top:4px}
      .ans-after{border-color:#1a7a3a}
      .ans-after::after{border-top-color:#1a7a3a}
      .ans-after .alab{color:#1a7a3a}
@@ -279,33 +280,46 @@
      const XR='<b style="color:#c0392b">&#10007;</b>',QR='<b style="color:#c0392b">?</b>';
      const QLAB={funds:'WILL USERS GET THEIR FUNDS BACK?',supply:'IS THE 16M SUPPLY SOUND?',both:'SUPPLY &amp; FUNDS'};
      /* after-answers that are objects ({txt}) mean: same answer as today — render as a compact chip */
+     const LN=s=>'<span class="ln">'+s+'</span>';
      const ANS={
        today:{
          funds:{
            clean:GRN+'If the bug was never exploited</b>: <b>yes.</b> Exactly 4.5M honest ZEC is inside; the turnstile lets exactly 4.5M out. Everyone leaves whole.',
            dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M exits, the rest is blocked. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
-           all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+').'},
+           all:'<b>Probably &mdash; but not necessarily.</b>'
+              +LN(GRN+'If the bug was never exploited</b>: everyone leaves whole.')
+              +LN(RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+').')},
          supply:{
-           clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> Every Orchard transaction carried a proof that nothing was counterfeited, but the bug means false proofs could have passed &mdash; so the proofs can&rsquo;t be trusted.',
-           dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> The bug let false proofs pass the verifier: counterfeit ZEC circulates as real money &mdash; 16M&nbsp;+&nbsp;'+QR+'.',
-           all:'<b>No one can tell &mdash; because of the bug.</b> Every Orchard move carried a proof that nothing was counterfeited; the bug means false proofs could have passed. '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit.'},
+           clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> The bug means false proofs could have passed, so Orchard&rsquo;s proofs can&rsquo;t be trusted.',
+           dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> False proofs passed as real: counterfeit ZEC circulates as real money &mdash; 16M&nbsp;+&nbsp;'+QR+'.',
+           all:'<b>No one can tell &mdash; because of the bug.</b> Every Orchard move carried a proof that nothing was counterfeited; the bug means false proofs could have passed.'
+              +LN(GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable.')
+              +LN(RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit.')},
          both:{
            clean:GRN+'If the bug was never exploited</b>: <b>funds safe; supply 16M.</b> But both facts rest on Orchard&rsquo;s proofs &mdash; and the bug means those proofs can&rsquo;t be trusted.',
-           dirty:RDS+'If counterfeiting happened</b>: <b>supply: no limit (16M&nbsp;+&nbsp;'+QR+'). Funds: not guaranteed</b> &mdash; the first 4.5M exits, the rest is blocked ('+XR+').',
-           all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+').'}},
+           dirty:RDS+'If counterfeiting happened</b>:'
+                +LN('<b>Supply:</b> no limit &mdash; 16M&nbsp;+&nbsp;'+QR+'.')
+                +LN('<b>Funds:</b> not guaranteed &mdash; the first 4.5M exits, the rest is blocked ('+XR+').'),
+           all:LN(GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable.')
+              +LN(RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+').')}},
        after:{
          funds:{
            clean:{txt:'Ironwood doesn&rsquo;t change this: everyone still leaves whole.'},
            dirty:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'},
            all:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'}},
          supply:{
-           clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and provable again.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it. The new pool is just as private &mdash; proofs fixed, plus extra assurance: new audits and formal verification.',
+           clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and provable again.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it. The new pool is just as private &mdash; proofs fixed, plus new audits and formal verification.',
            dirty:RDS+'If counterfeiting happened</b>: <b>yes &mdash; no matter how much was minted.</b> The '+QR+' can never change hands again; the only exit counts to 4.5M and stops.',
-           all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed; at most 4.5M can ever exit. Privacy continues in the new pool &mdash; proofs fixed, plus extra assurance: new audits and formal verification.'},
+           all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed; at most 4.5M can ever exit. Privacy continues in the new pool &mdash; proofs fixed, plus new audits and formal verification.'},
          both:{
-           clean:GRN+'If the bug was never exploited</b>: <b>supply: 16M, provable again. Funds: unchanged</b> &mdash; everyone leaves whole. The new pool is just as private.',
-           dirty:RDS+'If counterfeiting happened</b>: <b>supply: now capped, provably. Funds: unchanged</b> &mdash; not guaranteed ('+XR+'); a risk created by the bug, not by Ironwood.',
-           all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; now enforced and verifiable, with privacy continuing in the new pool. Funds: unchanged</b> &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.'}}};
+           clean:GRN+'If the bug was never exploited</b>:'
+                +LN('<b>Supply:</b> 16M &mdash; provable again.')
+                +LN('<b>Funds:</b> everyone leaves whole. The new pool is just as private.'),
+           dirty:RDS+'If counterfeiting happened</b>:'
+                +LN('<b>Supply:</b> now capped &mdash; provably.')
+                +LN('<b>Funds:</b> not guaranteed ('+XR+') &mdash; a risk created by the bug, not by Ironwood.'),
+           all:LN('<b>Supply:</b> &#8804;&nbsp;16M either way &mdash; enforced, verifiable by anyone; privacy continues in the new pool.')
+              +LN('<b>Funds:</b> unchanged &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.')}}};
 
      const STATUSL={all:'',supply:'The supply bar is the verdict &mdash; the rest of the picture is the argument for it.',
                     funds:'Watch the Orchard pool and its turnstile.'};
