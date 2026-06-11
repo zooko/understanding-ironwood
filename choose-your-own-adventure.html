@@ -70,8 +70,8 @@
  .cell.c-dirty{border:2px solid rgba(192,57,43,.5)}
  body:not([data-view="all"]) .cell{cursor:zoom-out}
  @media (hover:hover){
-  .cell:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.13)}
-  .cell:hover::after{opacity:.9}
+   .cell:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.13)}
+   .cell:hover::after{opacity:.9}
  }
  .cell::after{content:"";position:absolute;top:7px;right:7px;width:19px;height:19px;opacity:.4;
    transition:opacity .2s;background:no-repeat center/contain
@@ -100,11 +100,11 @@
  svg .mhl{opacity:0;transition:opacity .45s}
  body[data-lens="supply"] svg .mhl{opacity:1}
 
- .band{grid-column:1/4;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;
+ .band{grid-column:1/-1;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;
    padding:8px 10px;font-size:13.5px;font-weight:bold}
  .band span{font-weight:normal;opacity:.9}
- .grid .answer{grid-column:1/4;margin-bottom:6px}
- .bigwrap{grid-column:1/4;text-align:center;padding:6px 0 2px}
+ .grid .answer{grid-column:1/-1;margin-bottom:6px}
+ .bigwrap{grid-column:1/-1;text-align:center;padding:6px 0 2px}
  .bigbtn{font:inherit;font-size:15px;font-weight:700;color:#fff;background:#1a7a3a;border:2px solid #1a7a3a;
    border-radius:24px;padding:11px 26px;cursor:pointer;box-shadow:0 2px 8px rgba(26,122,58,.35)}
  .bigbtn:hover{background:#156332}
@@ -117,6 +117,18 @@
  body[data-stage="today"] #wiz,body[data-stage="full"] #wiz{display:none}
  body[data-stage="today"] .g-bot{display:none}
  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+ /* ---- mobile: stack the comparison instead of shrinking it ---- */
+ @media (max-width:640px){
+   .grid,body[data-view="clean"] .grid,body[data-view="dirty"] .grid{
+     grid-template-columns:1fr;transition:none}
+   .rowlab{writing-mode:horizontal-tb;transform:none;padding:5px 10px;
+     letter-spacing:3px;font-size:10.5px}
+   /* zoom on mobile = hide the other scenario entirely */
+   body[data-view="clean"] .c-dirty,body[data-view="dirty"] .c-clean{display:none}
+   body:not([data-view="all"]) .grid{max-width:none}
+   .answer{font-size:14px}
+ }
 </style>
 </head>
 <body data-view="all" data-lens="all" data-stage="step1">
