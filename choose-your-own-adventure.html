@@ -27,6 +27,10 @@
  .ans-after{border-color:#1a7a3a}
  .ans-after::after{border-top-color:#1a7a3a}
  .ans-after .alab{color:#1a7a3a}
+ /* "same answer" chip: visibly lighter than a full answer */
+ .answer.same{border-style:dashed;background:#f5f8f5;box-shadow:none;max-width:560px;
+   font-size:13.5px;padding:8px 14px 10px}
+ .answer.same::after{display:none}
 
  /* ---- top bar: the one question ---- */
  .btns{position:sticky;top:0;z-index:9;padding:6px 0 6px;background:rgba(250,250,248,.97);
@@ -59,7 +63,7 @@
  .rowlab{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:11px;font-weight:bold;
    letter-spacing:2px;color:#777;background:#f1f1ee;border-radius:8px;padding:4px 1px}
 
- /* ---- cells: colored frames carry the scenario; icon+cursor carry the zoom affordance ---- */
+ /* ---- cells: tagged colored frames carry the scenario ---- */
  .cell{background:#fff;border-radius:8px;padding:8px 8px 4px;
    box-shadow:0 1px 6px rgba(0,0,0,.05);position:relative;cursor:zoom-in;
    transition:transform .2s,box-shadow .2s}
@@ -75,6 +79,10 @@
    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/><line x1="8" y1="5.2" x2="8" y2="10.8" stroke="%23555" stroke-width="1.8"/></svg>')}
  body:not([data-view="all"]) .cell::after{background-image:
    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/></svg>')}
+ .tag{display:table;font-size:10.5px;font-weight:bold;letter-spacing:.3px;
+   padding:2px 10px;border-radius:9px;margin:0 auto 5px}
+ .c-clean .tag{background:#eaf4ee;color:#1a5c30}
+ .c-dirty .tag{background:#fbeeec;color:#8c2418}
 
  svg{width:100%;height:auto;display:block}
  svg text{font-family:inherit}
@@ -83,11 +91,9 @@
  body[data-view="clean"] .c-clean svg .d,
  body[data-view="dirty"] .c-dirty svg .d{opacity:1}
  svg .zo,svg .zg,svg .zi,svg .zr,svg .zm{transition:opacity .45s}
- /* funds lens: only the Orchard pool and its exit stay lit */
  body[data-lens="funds"] svg .zr,
  body[data-lens="funds"] svg .zm,
  body[data-lens="funds"] svg .zi{opacity:.15}
- /* supply lens: everything is supply-relevant — nothing dims */
 
  .band{grid-column:1/4;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;
    padding:8px 10px;font-size:13.5px;font-weight:bold}
@@ -98,14 +104,6 @@
    border-radius:24px;padding:11px 26px;cursor:pointer;box-shadow:0 2px 8px rgba(26,122,58,.35)}
  .bigbtn:hover{background:#156332}
  .bigbtn.open{background:#fff;color:#1a7a3a;box-shadow:none}
-
- /* scenario tag: the frame labels itself */
- .tag{display:inline-block;font-size:10.5px;font-weight:bold;letter-spacing:.3px;
-   padding:2px 10px;border-radius:9px;margin:0 auto 5px;position:relative;left:50%;
-   transform:translateX(-50%)}
- .c-clean .tag{background:#eaf4ee;color:#1a5c30}
- .c-dirty .tag{background:#fbeeec;color:#8c2418}
-
  .foot{color:#999;font-size:12px;text-align:center;margin:22px 0 8px}
 
  /* ---- stage gating ---- */
@@ -230,9 +228,8 @@ const PANELS=[
 
 const TAG={clean:'if the bug was never exploited',dirty:'if counterfeiting happened'};
 const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}"><div class="tag">${TAG[col]}</div>${svgPanel(P)}</div>`;
-
- document.getElementById('grid').innerHTML=
-   `<div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
+document.getElementById('grid').innerHTML=
+ `<div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
   <div class="bigwrap"><button class="bigbtn" id="iwbtn" onclick="toggleIW()"></button></div>
   <div class="band g-bot" id="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
   <div class="answer ans-after g-bot" id="ansAfter"><span class="alab" id="ansAfterLab"></span><span id="ansAfterTxt"></span></div>
@@ -242,33 +239,34 @@ const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}"><di
 const GRN='<b style="color:#1a7a3a">',RDS='<b style="color:#c0392b">';
 const XR='<b style="color:#c0392b">&#10007;</b>',QR='<b style="color:#c0392b">?</b>';
 const QLAB={funds:'WILL USERS GET THEIR FUNDS BACK?',supply:'IS THE 16M SUPPLY SOUND?',both:'SUPPLY &amp; FUNDS'};
+/* after-answers that are objects ({txt}) mean: same answer as today — render as a compact chip */
 const ANS={
 today:{
  funds:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes.</b> Exactly 4.5M honest ZEC is inside, and the turnstile lets exactly 4.5M out &mdash; everyone can leave whole.',
-  dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: it lets the first 4.5M out, then blocks the rest. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
-  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone can leave whole. '+RDS+'If counterfeiting happened</b>: the turnstile lets the first 4.5M out, whoever they are &mdash; honest ZEC could be trapped ('+XR+'). The pool&rsquo;s privacy hides whether counterfeiting ever happened.'},
+  clean:GRN+'If the bug was never exploited</b>: <b>yes.</b> Exactly 4.5M honest ZEC is inside; the turnstile lets exactly 4.5M out. Everyone leaves whole.',
+  dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M exits, the rest is blocked. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
+  all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+').'},
  supply:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but unprovable.</b> The 16M figure rests on the amount inside Orchard, which is private. You assume it; you can&rsquo;t check it.',
-  dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> Counterfeit ZEC changing hands inside Orchard is real circulation: 16M&nbsp;+&nbsp;'+QR+', unbounded and unmeasurable.',
-  all:'<b>No one can tell.</b> '+GRN+'If the bug was never exploited</b>: exactly 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit. From outside the private pool, the two look identical.'},
+  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but unprovable.</b> The 16M rests on the amount inside Orchard, which is private. You assume it; you can&rsquo;t check it.',
+  dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> Counterfeit ZEC changing hands inside Orchard is real circulation: 16M&nbsp;+&nbsp;'+QR+'.',
+  all:'<b>No one can tell.</b> '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit. From outside the private pool, the two look identical.'},
  both:{
-  clean:GRN+'If the bug was never exploited</b>: <b>funds safe, supply 16M.</b> But both facts rest on the one number nobody can see &mdash; the amount inside the private pool. True, but not checkable.',
-  dirty:RDS+'If counterfeiting happened</b>: <b>supply has no limit (16M&nbsp;+&nbsp;'+QR+'), and funds are not guaranteed</b> &mdash; the turnstile lets the first 4.5M out, then blocks the rest ('+XR+').',
-  all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed. The pool&rsquo;s privacy hides which is real.'}},
+  clean:GRN+'If the bug was never exploited</b>: <b>funds safe; supply 16M.</b> Both facts rest on the amount inside the private pool &mdash; true, but not checkable.',
+  dirty:RDS+'If counterfeiting happened</b>: <b>supply: no limit (16M&nbsp;+&nbsp;'+QR+'). Funds: not guaranteed</b> &mdash; the first 4.5M exits, the rest is blocked ('+XR+').',
+  all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+').'}},
 after:{
  funds:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; everyone migrates out whole.</b> Exactly 4.5M inside, exactly 4.5M may exit.',
-  dirty:RDS+'If counterfeiting happened</b>: <b>probably, but not necessarily.</b> The exit counts to 4.5M and stops, whoever goes through. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped forever ('+XR+') &mdash; a risk created by the bug, not by Ironwood.',
-  all:'<b>Probably, but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone exits whole. '+RDS+'If counterfeiting happened</b>: the exit counts to 4.5M and stops &mdash; honest ZEC behind counterfeit ZEC is trapped ('+XR+'). A risk created by the bug, not by Ironwood.'},
+  clean:{txt:'Ironwood doesn&rsquo;t change this: everyone still leaves whole.'},
+  dirty:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'},
+  all:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'}},
  supply:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and now provable.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it, immediately at activation.',
-  dirty:RDS+'If counterfeiting happened</b>: <b>yes &mdash; no matter how much was minted.</b> The '+QR+' can never change hands again, and the only exit counts to 4.5M and stops. Enforced, verifiable.',
-  all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed and at most 4.5M can ever exit, so &#8804;&nbsp;16M is enforced and verifiable by anyone running a node &mdash; regardless of what happened before.'},
+  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and now provable.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it.',
+  dirty:RDS+'If counterfeiting happened</b>: <b>yes &mdash; no matter how much was minted.</b> The '+QR+' can never change hands again; the only exit counts to 4.5M and stops.',
+  all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed; at most 4.5M can ever exit. &#8804;&nbsp;16M, verifiable by anyone running a node.'},
  both:{
-  clean:GRN+'If the bug was never exploited</b>: <b>supply &#8804;&nbsp;16M, provable; everyone exits whole.</b> The same picture as today &mdash; now verified instead of assumed.',
-  dirty:RDS+'If counterfeiting happened</b>: <b>supply capped, provably; funds not guaranteed</b> &mdash; if counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
-  all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; enforced, verifiable, immediately.</b> Funds: '+GRN+'whole if the bug was never exploited</b>; '+RDS+'not guaranteed if counterfeiting happened</b> ('+XR+').'}}};
+  clean:GRN+'If the bug was never exploited</b>: <b>supply: 16M, now provable. Funds: unchanged</b> &mdash; everyone leaves whole.',
+  dirty:RDS+'If counterfeiting happened</b>: <b>supply: now capped, provably. Funds: unchanged</b> &mdash; not guaranteed ('+XR+'); a risk created by the bug, not by Ironwood.',
+  all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; now enforced and verifiable. Funds: unchanged</b> &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.'}}};
 
 const STATUSL={all:'',supply:'Watch the circling arrows and the supply bar.',
  funds:'Watch the Orchard pool and its turnstile.'};
@@ -282,8 +280,16 @@ function renderAns(){
  const b=document.body.dataset.view;
  document.getElementById('ansTodayLab').innerHTML=QLAB[concern];
  document.getElementById('ansTodayTxt').innerHTML=ANS.today[concern][b];
- document.getElementById('ansAfterLab').innerHTML=QLAB[concern];
- document.getElementById('ansAfterTxt').innerHTML=ANS.after[concern][b];
+ const aft=ANS.after[concern][b], box=document.getElementById('ansAfter');
+ if(typeof aft==='object'){
+  box.classList.add('same');
+  document.getElementById('ansAfterLab').innerHTML=QLAB[concern]+' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY';
+  document.getElementById('ansAfterTxt').innerHTML=aft.txt;
+ }else{
+  box.classList.remove('same');
+  document.getElementById('ansAfterLab').innerHTML=QLAB[concern];
+  document.getElementById('ansAfterTxt').innerHTML=aft;
+ }
 }
 function setConcern(c){
  concern=c;
