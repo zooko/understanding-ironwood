@@ -294,97 +294,83 @@
   const STATUSL={all:'',supply:'The supply bar is the verdict &mdash; the rest of the picture is the argument for it.',
   funds:'Watch the Orchard pool and its turnstile.'};
 
-  /* keep the diagram steady: pin the topmost visible picture across a re-render */
-  function withAnchor(fn){
-  let a=null;
-  for(const el of document.querySelectorAll('.cell')){
-  const r=el.getBoundingClientRect();
-  if(r.bottom>70&&r.top<window.innerHeight){a=el;break}
-   }
-   const before=a&&a.getBoundingClientRect().top;
-   fn();
-   if(a)window.scrollBy(0,a.getBoundingClientRect().top-before);
-   }
+  /* ---------- state ---------- */
+  let concern=null;
+  const C2L={funds:'funds',supply:'supply',both:'all'};
 
-   /* ---------- state ---------- */
-   let concern=null;
-   const C2L={funds:'funds',supply:'supply',both:'all'};
-
-   function renderAns(){
-   if(!concern)return;
-   const b=document.body.dataset.view;
-   document.getElementById('ansTodayLab').innerHTML=QLAB[concern];
-   document.getElementById('ansTodayTxt').innerHTML=ANS.today[concern][b];
-   const aft=ANS.after[concern][b], box=document.getElementById('ansAfter');
-   if(typeof aft==='object'){
-   box.classList.add('same');
-   document.getElementById('ansAfterLab').innerHTML=QLAB[concern]+' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY';
-   document.getElementById('ansAfterTxt').innerHTML=aft.txt;
-   }else{
-   box.classList.remove('same');
-   document.getElementById('ansAfterLab').innerHTML=QLAB[concern];
-   document.getElementById('ansAfterTxt').innerHTML=aft;
-   }
-   }
-   /* reserve space for the tallest answer so the diagram never moves (desktop only) */
-   function sizeSlots(){
-   const sT=document.getElementById('slotToday'),sA=document.getElementById('slotAfter');
-   sT.style.minHeight='';sA.style.minHeight='';
-   if(!concern)return;
-   const v=document.body.dataset.view;
-   let mT=0,mA=0;
-   for(const c of ['funds','supply','both']){
-   document.getElementById('statusL').innerHTML=STATUSL[C2L[c]];
-   document.getElementById('ansTodayLab').innerHTML=QLAB[c];
-   document.getElementById('ansTodayTxt').innerHTML=ANS.today[c][v];
-   const aft=ANS.after[c][v],box=document.getElementById('ansAfter');
-   box.classList.toggle('same',typeof aft==='object');
-   document.getElementById('ansAfterTxt').innerHTML=typeof aft==='object'?aft.txt:aft;
-   mT=Math.max(mT,sT.offsetHeight);mA=Math.max(mA,sA.offsetHeight);
-   }
-   sT.style.minHeight=mT+'px';if(mA)sA.style.minHeight=mA+'px';
-   document.getElementById('statusL').innerHTML=STATUSL[C2L[concern]];
-   renderAns();
-   }
-   window.addEventListener('resize',sizeSlots);
-   function setConcern(c){
-   withAnchor(()=>{
-        concern=c;
-        const lens=C2L[c];
-        document.body.dataset.lens=lens;
-        for(const [id,k] of [['l-funds','funds'],['l-supply','supply'],['l-all','both']])
-        document.getElementById(id).setAttribute('aria-pressed',String(k===c));
-        document.getElementById('statusL').innerHTML=STATUSL[lens];
-        renderAns();
-        });
-        sizeSlots();
-        if(document.body.dataset.stage==='step1'){
-        setStage('today');window.scrollTo({top:0,behavior:'smooth'});}
-        }
-        function setView(v){
-        withAnchor(()=>{
-        document.body.dataset.view=v;
-        renderAns();
-        });
-        sizeSlots();
-        }
-        function setStage(s){
-        document.body.dataset.stage=s;
-        const b=document.getElementById('iwbtn');
-        b.innerHTML = s==='full' ? '&#8593;&nbsp; Back to today &mdash; before Ironwood'
-        : 'What will change when Ironwood activates? &nbsp;&#8595;';
-        b.classList.toggle('open',s==='full');
-        sizeSlots();
-        }
-        function toggleIW(){
-        if(document.body.dataset.stage==='full'){setStage('today');}
-        else{setStage('full');
-        setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
-        }
-        document.querySelectorAll('.cell').forEach(el=>
-        el.onclick=()=>{const v=document.body.dataset.view;
-        setView(v==='all'?el.dataset.col:'all');});
-        setView('all');setStage('step1');
+  function renderAns(){
+  if(!concern)return;
+  const b=document.body.dataset.view;
+  document.getElementById('ansTodayLab').innerHTML=QLAB[concern];
+  document.getElementById('ansTodayTxt').innerHTML=ANS.today[concern][b];
+  const aft=ANS.after[concern][b], box=document.getElementById('ansAfter');
+  if(typeof aft==='object'){
+  box.classList.add('same');
+  document.getElementById('ansAfterLab').innerHTML=QLAB[concern]+' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY';
+  document.getElementById('ansAfterTxt').innerHTML=aft.txt;
+  }else{
+  box.classList.remove('same');
+  document.getElementById('ansAfterLab').innerHTML=QLAB[concern];
+  document.getElementById('ansAfterTxt').innerHTML=aft;
+  }
+  }
+  /* reserve space for the tallest answer so the diagram never moves (desktop only) */
+  function sizeSlots(){
+  const sT=document.getElementById('slotToday'),sA=document.getElementById('slotAfter');
+  sT.style.minHeight='';sA.style.minHeight='';
+  if(!concern)return;
+  const v=document.body.dataset.view;
+  let mT=0,mA=0;
+  for(const c of ['funds','supply','both']){
+  document.getElementById('statusL').innerHTML=STATUSL[C2L[c]];
+  document.getElementById('ansTodayLab').innerHTML=QLAB[c];
+  document.getElementById('ansTodayTxt').innerHTML=ANS.today[c][v];
+  const aft=ANS.after[c][v],box=document.getElementById('ansAfter');
+  const same=typeof aft==='object';
+  box.classList.toggle('same',same);
+  document.getElementById('ansAfterLab').innerHTML=same?QLAB[c]+' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY':QLAB[c];
+  document.getElementById('ansAfterTxt').innerHTML=same?aft.txt:aft;
+  mT=Math.max(mT,sT.offsetHeight);mA=Math.max(mA,sA.offsetHeight);
+  }
+  sT.style.minHeight=mT+'px';if(mA)sA.style.minHeight=mA+'px';
+  document.getElementById('statusL').innerHTML=STATUSL[C2L[concern]];
+  renderAns();
+  }
+  window.addEventListener('resize',sizeSlots);
+  function setConcern(c){
+  concern=c;
+  const lens=C2L[c];
+  document.body.dataset.lens=lens;
+  for(const [id,k] of [['l-funds','funds'],['l-supply','supply'],['l-all','both']])
+  document.getElementById(id).setAttribute('aria-pressed',String(k===c));
+  document.getElementById('statusL').innerHTML=STATUSL[lens];
+  renderAns();
+  sizeSlots();
+  if(document.body.dataset.stage==='step1'){
+  setStage('today');window.scrollTo({top:0,behavior:'smooth'});}
+  }
+  function setView(v){
+  document.body.dataset.view=v;
+  renderAns();
+  sizeSlots();
+  }
+  function setStage(s){
+  document.body.dataset.stage=s;
+  const b=document.getElementById('iwbtn');
+  b.innerHTML = s==='full' ? '&#8593;&nbsp; Back to today &mdash; before Ironwood'
+  : 'What will change when Ironwood activates? &nbsp;&#8595;';
+  b.classList.toggle('open',s==='full');
+  sizeSlots();
+  }
+  function toggleIW(){
+  if(document.body.dataset.stage==='full'){setStage('today');}
+  else{setStage('full');
+  setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
+  }
+  document.querySelectorAll('.cell').forEach(el=>
+  el.onclick=()=>{const v=document.body.dataset.view;
+  setView(v==='all'?el.dataset.col:'all');});
+  setView('all');setStage('step1');
     </script>
   </body>
 </html>
