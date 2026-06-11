@@ -55,35 +55,74 @@
      #l-all[aria-pressed="true"]{background:#444;border-color:#444;color:#fff}
      .bshort{display:none}
      @media (max-width:600px){.blong{display:none}.bshort{display:inline}}
-     .statusL{text-align:center;font-size:12.5px;color:#777;margin:8px auto;max-width:680px;min-height:1em}
+     .statusL{display:grid;max-width:680px;margin:5px auto 1px;padding:0 10px}
+     .statusL>.sv{grid-area:1/1;visibility:hidden;text-align:center;font-size:12px;
+       line-height:1.35;color:#777}
+     .statusL>.sv.on{visibility:visible}
 
-     /* ---- grid ---- */
-     .grid{display:grid;grid-template-columns:22px 1fr 1fr;gap:10px;
+     /* ---- grid: shared bones (layout-specific rules below) ---- */
+     .grid{display:grid;gap:10px}
+     .c-clean,.c-dirty{min-width:0;overflow:hidden}
+     .rowlab{font-weight:bold;color:#777;background:#f1f1ee;border-radius:8px}
+
+     /* ====================================================================
+        LAYOUT SWITCH: the JS constant LAYOUT ('stack' | 'side') sets
+        body[data-layout]. All layout-specific rules are gated on it.
+        ==================================================================== */
+
+     /* ---- STACKED: one column, full-width frames; collapsed = title chip ---- */
+     body[data-layout="stack"] .grid{grid-template-columns:1fr;max-width:820px;margin:0 auto}
+     body[data-layout="stack"] .rowlab{text-align:center;font-size:10.5px;letter-spacing:3px;padding:5px 10px}
+     body[data-layout="stack"] .cell{cursor:zoom-out}
+     body[data-layout="stack"] .cell svg{max-height:480px;
+       transition:max-height .55s cubic-bezier(.45,0,.2,1),opacity .35s}
+     body[data-layout="stack"][data-view="clean"] .c-dirty,
+     body[data-layout="stack"][data-view="dirty"] .c-clean,
+     body[data-layout="stack"][data-view="none"] .cell{cursor:zoom-in}
+     body[data-layout="stack"][data-view="clean"] .c-dirty svg,
+     body[data-layout="stack"][data-view="dirty"] .c-clean svg,
+     body[data-layout="stack"][data-view="none"] .cell svg{max-height:0;opacity:0}
+     body[data-layout="stack"][data-view="clean"] .c-dirty .tag,
+     body[data-layout="stack"][data-view="dirty"] .c-clean .tag,
+     body[data-layout="stack"][data-view="none"] .cell .tag{opacity:.75}
+     /* icons: expanded = minus (collapse me), chip = plus (expand me) */
+     body[data-layout="stack"] .cell::after{background-image:var(--zo)}
+     body[data-layout="stack"][data-view="clean"] .c-dirty::after,
+     body[data-layout="stack"][data-view="dirty"] .c-clean::after,
+     body[data-layout="stack"][data-view="none"] .cell::after{background-image:var(--zi)}
+
+     /* ---- SIDE-BY-SIDE: two columns, zoom = collapse the other column ---- */
+     body[data-layout="side"] .grid{grid-template-columns:22px 1fr 1fr;
        transition:grid-template-columns .65s cubic-bezier(.45,0,.2,1)}
-     body[data-view="clean"] .grid{grid-template-columns:22px 1fr 0fr}
-     body[data-view="dirty"] .grid{grid-template-columns:22px 0fr 1fr}
-     body:not([data-view="all"]) .grid{max-width:740px;margin:0 auto}
-     .c-clean,.c-dirty{min-width:0;overflow:hidden;transition:opacity .4s}
-     body[data-view="clean"] .c-dirty,body[data-view="dirty"] .c-clean{opacity:0;pointer-events:none}
-     .rowlab{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:11px;font-weight:bold;
-       letter-spacing:2px;color:#777;background:#f1f1ee;border-radius:8px;padding:4px 1px}
+     body[data-layout="side"][data-view="clean"] .grid{grid-template-columns:22px 1fr 0fr}
+     body[data-layout="side"][data-view="dirty"] .grid{grid-template-columns:22px 0fr 1fr}
+     body[data-layout="side"]:not([data-view="all"]) .grid{max-width:740px;margin:0 auto}
+     body[data-layout="side"] .c-clean,body[data-layout="side"] .c-dirty{transition:opacity .4s}
+     body[data-layout="side"][data-view="clean"] .c-dirty,
+     body[data-layout="side"][data-view="dirty"] .c-clean{opacity:0;pointer-events:none}
+     body[data-layout="side"] .rowlab{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;
+       font-size:11px;letter-spacing:2px;padding:4px 1px}
+     body[data-layout="side"] .cell{cursor:zoom-in}
+     body[data-layout="side"]:not([data-view="all"]) .cell{cursor:zoom-out}
+     /* icons: plus = zoom in, minus = zoom out */
+     body[data-layout="side"] .cell::after{background-image:var(--zi)}
+     body[data-layout="side"]:not([data-view="all"]) .cell::after{background-image:var(--zo)}
 
      /* ---- cells: tagged colored frames carry the scenario ---- */
      .cell{background:#fff;border-radius:8px;padding:8px 8px 4px;
-       box-shadow:0 1px 6px rgba(0,0,0,.05);position:relative;cursor:zoom-in;
-       transition:transform .2s,box-shadow .2s}
+       box-shadow:0 1px 6px rgba(0,0,0,.05);position:relative;
+       transition:transform .2s,box-shadow .2s;
+       --zi:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/><line x1="8" y1="5.2" x2="8" y2="10.8" stroke="%23555" stroke-width="1.8"/></svg>');
+       --zo:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/></svg>')}
      .cell.c-clean{border:2px solid rgba(26,122,58,.5)}
      .cell.c-dirty{border:2px solid rgba(192,57,43,.5)}
-     body:not([data-view="all"]) .cell{cursor:zoom-out}
+     .cell:focus-visible{outline:3px solid #4878a8;outline-offset:2px}
      @media (hover:hover){
        .cell:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.13)}
        .cell:hover::after{opacity:.9}
      }
      .cell::after{content:"";position:absolute;top:7px;right:7px;width:19px;height:19px;opacity:.4;
-       transition:opacity .2s;background:no-repeat center/contain
-       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/><line x1="8" y1="5.2" x2="8" y2="10.8" stroke="%23555" stroke-width="1.8"/></svg>')}
-     body:not([data-view="all"]) .cell::after{background-image:
-       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/></svg>')}
+       transition:opacity .2s;background:no-repeat center/contain}
      .tag{display:table;font-size:10.5px;font-weight:bold;letter-spacing:.3px;
        padding:2px 10px;border-radius:9px;margin:0 auto 5px}
      .c-clean .tag{background:#eaf4ee;color:#1a5c30}
@@ -106,54 +145,32 @@
      svg .mhl{opacity:0;transition:opacity .45s}
      body[data-lens="supply"] svg .mhl{opacity:1}
 
+     /* ---- the seam between TODAY and AFTER ---- */
+     .ironq{grid-column:1/-1;text-align:center;font-size:18px;font-weight:700;color:#1a7a3a;
+       margin:22px 0 0}
+     .ironq span{font-size:14px}
      .band{grid-column:1/-1;background:#1a7a3a;color:#fff;text-align:center;border-radius:8px;
        padding:8px 10px;font-size:13.5px;font-weight:bold}
      .band span{font-weight:normal;opacity:.9}
-     .grid .answer{grid-column:1/-1;margin-bottom:6px}
-     .bigwrap{grid-column:1/-1;text-align:center;padding:6px 0 2px}
-     .bigbtn{font:inherit;font-size:15px;font-weight:700;color:#fff;background:#1a7a3a;border:2px solid #1a7a3a;
-       border-radius:24px;padding:11px 26px;cursor:pointer;box-shadow:0 2px 8px rgba(26,122,58,.35)}
-     .bigbtn:hover{background:#156332}
-     .bigbtn.open{background:#fff;color:#1a7a3a;box-shadow:none}
+     .grid .answer{margin-bottom:6px}
      .foot{color:#999;font-size:12px;text-align:center;margin:22px 0 8px}
 
-     /* ---- stage gating ---- */
-     body[data-stage="step1"] .btns,body[data-stage="step1"] .statusL,
-     body[data-stage="step1"] #slotToday,body[data-stage="step1"] .grid,body[data-stage="step1"] .foot{display:none}
-     body[data-stage="today"] #wiz,body[data-stage="full"] #wiz{display:none}
-     body[data-stage="today"] .g-bot{display:none}
+     /* ---- stage gating: wizard first, everything after one choice ---- */
+     body[data-stage="step1"] .btns,body[data-stage="step1"] #slotToday,
+     body[data-stage="step1"] .grid,body[data-stage="step1"] .foot{display:none}
+     body[data-stage="full"] #wiz{display:none}
      @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-     /* ---- mobile: stack the comparison; each scenario is an independent accordion ---- */
+     /* ---- small screens ---- */
      @media (max-width:640px){
-       .grid,body[data-view="clean"] .grid,body[data-view="dirty"] .grid{
-         grid-template-columns:1fr;transition:none}
-       .rowlab{writing-mode:horizontal-tb;transform:none;padding:5px 10px;
-         letter-spacing:3px;font-size:10.5px}
-       /* collapsed = title chip */
-       .cell svg{max-height:345px;transition:max-height .55s cubic-bezier(.45,0,.2,1),opacity .35s}
-       body[data-view="dirty"] .c-clean,body[data-view="none"] .c-clean,
-       body[data-view="clean"] .c-dirty,body[data-view="none"] .c-dirty{
-         opacity:1;pointer-events:auto;cursor:zoom-in}
-       body[data-view="dirty"] .c-clean svg,body[data-view="none"] .c-clean svg,
-       body[data-view="clean"] .c-dirty svg,body[data-view="none"] .c-dirty svg{
-         max-height:0;opacity:0}
-       body[data-view="dirty"] .c-clean .tag,body[data-view="none"] .c-clean .tag,
-       body[data-view="clean"] .c-dirty .tag,body[data-view="none"] .c-dirty .tag{opacity:.75}
-       /* icons: expanded cell = minus (collapse me), collapsed chip = plus (expand me) */
-       .cell::after{background-image:
-         url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/></svg>')}
-       body[data-view="dirty"] .c-clean::after,body[data-view="none"] .c-clean::after,
-       body[data-view="clean"] .c-dirty::after,body[data-view="none"] .c-dirty::after{background-image:
-         url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/><line x1="8" y1="5.2" x2="8" y2="10.8" stroke="%23555" stroke-width="1.8"/></svg>')}
-       body:not([data-view="all"]) .grid{max-width:none}
+       body[data-layout="stack"] .cell svg{max-height:345px}
        .answer{font-size:14px}
      }
     </style>
   </head>
-  <body data-view="all" data-lens="all" data-stage="step1">
+  <body data-view="all" data-lens="all" data-stage="step1" data-layout="stack">
 
-    <h1>The Vulnerability</h1>
+    <h1>8 The Vulnerability</h1>
 
     <div id="wiz" class="qcard">
       <h2>What&rsquo;s your question?</h2>
@@ -162,11 +179,14 @@
       <button class="qbtn" onclick="setConcern('both')">Both &mdash; show me everything</button>
     </div>
 
-    <div class="btns"><div class="brow">
-      <button id="l-funds" onclick="setConcern('funds')"><span class="blong">Will users get their funds back?</span><span class="bshort">Users&rsquo; funds</span></button>
-      <button id="l-supply" onclick="setConcern('supply')"><span class="blong">Is the 16M supply sound?</span><span class="bshort">16M supply</span></button>
-      <button id="l-all" onclick="setConcern('both')">Both</button>
-    </div></div>
+    <div class="btns">
+      <div class="brow">
+        <button id="l-funds" onclick="setConcern('funds')"><span class="blong">Will users get their funds back?</span><span class="bshort">Users&rsquo; funds</span></button>
+        <button id="l-supply" onclick="setConcern('supply')"><span class="blong">Is the 16M supply sound?</span><span class="bshort">16M supply</span></button>
+        <button id="l-all" onclick="setConcern('both')">Both</button>
+      </div>
+      <div class="statusL" id="statusL"></div>
+    </div>
 
     <div class="slot" id="slotToday"></div>
 
@@ -176,7 +196,7 @@
 
     <script>
      const OR='#e8923a',ORD='#9a5b15',BL='#4878a8',BLD='#2c5577',GR='#1a7a3a',RD='#c0392b',GY='#999',GYD='#777',AM='#a86b00';
-     const B='font-weight="bold"',BH='font-weight="bold" class="h"',BD='font-weight="bold" class="d"',BDH='font-weight="bold" class="d h"';
+     const B='font-weight="bold"',BH='font-weight="bold" class="h"',BDH='font-weight="bold" class="d h"';
      const T=(x,y,s,f,c,e='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
      const mk=(id,f)=>`<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
 
@@ -265,15 +285,16 @@
      ];
 
      const TAG={clean:'if the bug was never exploited',dirty:'if counterfeiting happened'};
-     const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}"><div class="tag">${TAG[col]}</div>${svgPanel(P)}</div>`;
+     const cell=(P,col)=>`<div class="cell c-${col}" data-col="${col}" role="button" tabindex="0"><div class="tag">${TAG[col]}</div>${svgPanel(P)}</div>`;
      document.getElementById('grid').innerHTML=
-       `<div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
-      <div class="bigwrap"><button class="bigbtn" id="iwbtn" onclick="toggleIW()"></button></div>
-      <div class="band g-bot" id="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
+       `<div class="rowlab">TODAY</div>${cell(PANELS[0],'clean')}${cell(PANELS[1],'dirty')}
 
-      <div class="slot g-bot" id="slotAfter"></div>
+      <div class="ironq">What does Ironwood change? <span>&#8595;</span></div>
+      <div class="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
 
-      <div class="rowlab g-bot">AFTER IRONWOOD</div>${cell(PANELS[2],'clean','g-bot')}${cell(PANELS[3],'dirty','g-bot')}`;
+      <div class="slot" id="slotAfter"></div>
+
+      <div class="rowlab">AFTER IRONWOOD</div>${cell(PANELS[2],'clean')}${cell(PANELS[3],'dirty')}`;
 
      /* ---------- answers ---------- */
      const GRN='<b style="color:#1a7a3a">',RDS='<b style="color:#c0392b">';
@@ -328,19 +349,34 @@
      let concern=null;
      const C2L={funds:'funds',supply:'supply',both:'all'};
 
+     /* LAYOUT: 'stack' = frames above one another (wide); 'side' = side-by-side on
+        desktop with zoom (phones always stack). This one word is the whole switch. */
+     const LAYOUT='stack';
+     function applyLayout(){
+       const side = LAYOUT==='side' && window.matchMedia('(min-width:641px)').matches;
+       document.body.dataset.layout = side ? 'side' : 'stack';
+       /* 'none' (both collapsed) only exists in stacked mode */
+       if(side && document.body.dataset.view==='none') setView('all');
+     }
+     window.addEventListener('resize',applyLayout);
+
      function buildSlots(){
        let hT='',hA='';
        for(const c of ['funds','supply','both'])for(const v of ['all','clean','dirty']){
-         hT+=`<div class="svar" data-k="${c}|${v}"><p class="statusL">${STATUSL[C2L[c]]}</p>`
+         hT+=`<div class="svar" data-k="${c}|${v}">`
             +`<div class="answer"><span class="alab">${QLAB[c]}</span><span>${ANS.today[c][v]}</span></div></div>`;
          const aft=ANS.after[c][v],same=typeof aft==='object';
          hA+=`<div class="svar" data-k="${c}|${v}"><div class="answer ans-after${same?' same':''}">`
-            +`<span class="alab">${QLAB[c]}${same?' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY':''}</span>`
+            +`<span class="alab">${QLAB[c]}${same?' &nbsp;&middot;&nbsp; SAME ANSWER AS BEFORE':''}</span>`
             +`<span>${same?aft.txt:aft}</span></div></div>`;
        }
        document.getElementById('slotToday').innerHTML=hT;
        document.getElementById('slotAfter').innerHTML=hA;
+       let hS='';
+       for(const l of ['all','supply','funds'])hS+=`<span class="sv" data-l="${l}">${STATUSL[l]}</span>`;
+       document.getElementById('statusL').innerHTML=hS;
      }
+     
      function renderAns(){
        if(!concern)return;
        const v=document.body.dataset.view;
@@ -349,47 +385,38 @@
      }
      function setConcern(c){
        concern=c;
-       document.body.dataset.lens=C2L[c];
+       const lens=C2L[c];
+       document.body.dataset.lens=lens;
        for(const [id,k] of [['l-funds','funds'],['l-supply','supply'],['l-all','both']])
          document.getElementById(id).setAttribute('aria-pressed',String(k===c));
+       document.querySelectorAll('#statusL .sv').forEach(el=>el.classList.toggle('on',el.dataset.l===lens));
        renderAns();
        if(document.body.dataset.stage==='step1'){
-         setStage('today');window.scrollTo({top:0,behavior:'smooth'});}
+         document.body.dataset.stage='full';
+         window.scrollTo({top:0,behavior:'smooth'});}
      }
      function setView(v){
        document.body.dataset.view=v;
        renderAns();
      }
-     function setStage(s){
-       document.body.dataset.stage=s;
-       const b=document.getElementById('iwbtn');
-       b.innerHTML = s==='full' ? '&#8593;&nbsp; Back to today &mdash; before Ironwood'
-                   : 'What will change when Ironwood activates? &nbsp;&#8595;';
-       b.classList.toggle('open',s==='full');
-     }
-     function toggleIW(){
-       if(document.body.dataset.stage==='full'){setStage('today');}
-       else{setStage('full');
-         setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
-     }
-     document.querySelectorAll('.cell').forEach(el=>
+     document.querySelectorAll('.cell').forEach(el=>{
        el.onclick=()=>{
          const v=document.body.dataset.view,c=el.dataset.col;
-         if(window.matchMedia('(max-width:640px)').matches){
-           /* accordion: flip only this card's bit */
+         if(document.body.dataset.layout==='side'){
+           /* zoom: tap a card to fill the row, tap again for both */
+           setView(v===c?'all':c);
+         }else{
+           /* accordion: flip only this card's open/closed bit */
            let oc=(v==='all'||v==='clean'),od=(v==='all'||v==='dirty');
            if(c==='clean')oc=!oc;else od=!od;
            setView(oc&&od?'all':oc?'clean':od?'dirty':'none');
-         }else{
-           /* desktop zoom: unchanged */
-           setView(v===c?'all':c);
          }
+       };
+       el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.onclick();}};
      });
-     window.addEventListener('resize',()=>{
-       if(document.body.dataset.view==='none'&&window.matchMedia('(min-width:641px)').matches)setView('all');
-     });
+     applyLayout();
      buildSlots();
-     setView('all');setStage('step1');
+     setView('all');
     </script>
   </body>
 </html>
