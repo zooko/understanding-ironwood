@@ -124,13 +124,22 @@
      @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
      /* ---- mobile: stack the comparison instead of shrinking it ---- */
+     /* ---- mobile: stack the comparison instead of shrinking it ---- */
      @media (max-width:640px){
        .grid,body[data-view="clean"] .grid,body[data-view="dirty"] .grid{
          grid-template-columns:1fr;transition:none}
        .rowlab{writing-mode:horizontal-tb;transform:none;padding:5px 10px;
          letter-spacing:3px;font-size:10.5px}
-       /* zoom on mobile = hide the other scenario entirely */
-       body[data-view="clean"] .c-dirty,body[data-view="dirty"] .c-clean{display:none}
+       /* zoom on mobile = collapse the other scenario to its title chip */
+       .cell svg{max-height:345px;transition:max-height .55s cubic-bezier(.45,0,.2,1),opacity .35s}
+       body[data-view="clean"] .c-dirty,body[data-view="dirty"] .c-clean{
+         opacity:1;pointer-events:auto;cursor:zoom-in}
+       body[data-view="clean"] .c-dirty svg,body[data-view="dirty"] .c-clean svg{
+         max-height:0;opacity:0}
+       body[data-view="clean"] .c-dirty .tag,body[data-view="dirty"] .c-clean .tag{opacity:.75}
+       /* the collapsed chip's action is zoom-IN, so give it the plus icon back */
+       body[data-view="clean"] .c-dirty::after,body[data-view="dirty"] .c-clean::after{background-image:
+         url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="8" cy="8" r="6.2" fill="white" stroke="%23555" stroke-width="1.8"/><line x1="12.8" y1="12.8" x2="18" y2="18" stroke="%23555" stroke-width="2.4" stroke-linecap="round"/><line x1="5.2" y1="8" x2="10.8" y2="8" stroke="%23555" stroke-width="1.8"/><line x1="8" y1="5.2" x2="8" y2="10.8" stroke="%23555" stroke-width="1.8"/></svg>')}
        body:not([data-view="all"]) .grid{max-width:none}
        .answer{font-size:14px}
      }
@@ -160,99 +169,99 @@
     <p class="foot">Based on the Ironwood proposal by Shielded Labs, the Zcash Foundation, Project Tachyon, Valar Group, and ZODL.</p>
 
     <script>
-      const OR='#e8923a',ORD='#9a5b15',BL='#4878a8',BLD='#2c5577',GR='#1a7a3a',RD='#c0392b',GY='#999',GYD='#777',AM='#a86b00';
-      const B='font-weight="bold"',BH='font-weight="bold" class="h"',BD='font-weight="bold" class="d"',BDH='font-weight="bold" class="d h"';
-      const T=(x,y,s,f,c,e='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
-      const mk=(id,f)=>`<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
+     const OR='#e8923a',ORD='#9a5b15',BL='#4878a8',BLD='#2c5577',GR='#1a7a3a',RD='#c0392b',GY='#999',GYD='#777',AM='#a86b00';
+     const B='font-weight="bold"',BH='font-weight="bold" class="h"',BD='font-weight="bold" class="d"',BDH='font-weight="bold" class="d h"';
+     const T=(x,y,s,f,c,e='')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
+     const mk=(id,f)=>`<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
 
-      const SOLID=' pathLength="100" stroke-dasharray="87 13"';
-      const DASHED=' pathLength="100" stroke-dasharray="5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 6 13"';
-      function leftPool(p,o){
-      const sl=o.sealed, dash=sl?DASHED:SOLID;
-      const arc=(d,col,m)=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="2.2"${dash} marker-end="url(#${m}${p})"/>`;
-      let s=`<rect x="6" y="8" width="180" height="156" rx="6" fill="${sl?'#f4f4f4':'#fff7ef'}" stroke="${sl?'#999':OR}" stroke-width="1.6"/>`
-      +T(96,26,11.5,sl?'#555':ORD,'Orchard pool'+(sl?' &#8212; sealed':''),B);
-      if(o.split){
-      s+=arc('M 54 56 A 42 16 0 0 1 138 56',sl?'#c4c4c4':ORD,sl?'x':'o')
-      +arc('M 138 112 A 42 16 0 0 1 54 112',sl?'#c4c4c4':RD,sl?'x':'r')
-      +`<rect x="16" y="62" width="76" height="44" rx="3" fill="${OR}"/>`
-      +T(54,82,12,'#fff','4.5M',B)+T(54,97,8.5,'#fff','honest')
-      +`<rect x="100" y="62" width="72" height="44" rx="3" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
-      +`<circle cx="136" cy="84" r="11" fill="#fff" stroke="${RD}"/>`+T(136,88,12,RD,'?',B);
-      if(sl)s+=T(96,46,12,GY,'&#10007;',BH)+T(96,130,12,GY,'&#10007;',BH);
-      }else{
-      s+=arc('M 51 60 A 45 16 0 0 1 141 60',sl?'#c4c4c4':ORD,sl?'x':'o')
-      +arc('M 141 104 A 45 16 0 0 1 51 104',sl?'#c4c4c4':ORD,sl?'x':'o')
-      +T(96,90,22,OR,'4.5M',B);
-      if(sl)s+=T(96,50,12,GY,'&#10007;',BH)+T(96,122,12,GY,'&#10007;',BH);
-      }
-      s+=T(96,146,9.5,o.capCol,o.cap,B)
-      +(o.sub?T(96,159,9.5,o.subCol||'#666',o.sub,'class="d"'):'');
-      return s;
-      }
-      const rightPool=(p,o)=>`<rect x="274" y="8" width="180" height="156" rx="6" fill="#eef4fa" stroke="${BL}" stroke-width="1.6"/>`
-      +T(364,26,11.5,BLD,o.title,B)
-      +`<path d="M 319 60 A 45 16 0 0 1 409 60" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
-      +`<path d="M 409 104 A 45 16 0 0 1 319 104" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
-      +T(364,90,22,BL,'11.5M',B)
-      +T(364,146,9.5,BLD,'changing hands freely &#10003;',B)
-      +(o.sub?T(364,159,9.5,BLD,o.sub):'');
+     const SOLID=' pathLength="100" stroke-dasharray="87 13"';
+     const DASHED=' pathLength="100" stroke-dasharray="5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 6 13"';
+     function leftPool(p,o){
+       const sl=o.sealed, dash=sl?DASHED:SOLID;
+       const arc=(d,col,m)=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="2.2"${dash} marker-end="url(#${m}${p})"/>`;
+       let s=`<rect x="6" y="8" width="180" height="156" rx="6" fill="${sl?'#f4f4f4':'#fff7ef'}" stroke="${sl?'#999':OR}" stroke-width="1.6"/>`
+            +T(96,26,11.5,sl?'#555':ORD,'Orchard pool'+(sl?' &#8212; sealed':''),B);
+       if(o.split){
+         s+=arc('M 54 56 A 42 16 0 0 1 138 56',sl?'#c4c4c4':ORD,sl?'x':'o')
+           +arc('M 138 112 A 42 16 0 0 1 54 112',sl?'#c4c4c4':RD,sl?'x':'r')
+           +`<rect x="16" y="62" width="76" height="44" rx="3" fill="${OR}"/>`
+           +T(54,82,12,'#fff','4.5M',B)+T(54,97,8.5,'#fff','honest')
+           +`<rect x="100" y="62" width="72" height="44" rx="3" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+           +`<circle cx="136" cy="84" r="11" fill="#fff" stroke="${RD}"/>`+T(136,88,12,RD,'?',B);
+         if(sl)s+=T(96,46,12,GY,'&#10007;',BH)+T(96,130,12,GY,'&#10007;',BH);
+       }else{
+         s+=arc('M 51 60 A 45 16 0 0 1 141 60',sl?'#c4c4c4':ORD,sl?'x':'o')
+           +arc('M 141 104 A 45 16 0 0 1 51 104',sl?'#c4c4c4':ORD,sl?'x':'o')
+           +T(96,90,22,OR,'4.5M',B);
+         if(sl)s+=T(96,50,12,GY,'&#10007;',BH)+T(96,122,12,GY,'&#10007;',BH);
+       }
+       s+=T(96,146,9.5,o.capCol,o.cap,B)
+         +(o.sub?T(96,159,9.5,o.subCol||'#666',o.sub,'class="d"'):'');
+       return s;
+     }
+     const rightPool=(p,o)=>`<rect x="274" y="8" width="180" height="156" rx="6" fill="#eef4fa" stroke="${BL}" stroke-width="1.6"/>`
+                          +T(364,26,11.5,BLD,o.title,B)
+                          +`<path d="M 319 60 A 45 16 0 0 1 409 60" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
+                          +`<path d="M 409 104 A 45 16 0 0 1 319 104" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
+                          +T(364,90,22,BL,'11.5M',B)
+                          +T(364,146,9.5,BLD,'changing hands freely &#10003;',B)
+                          +(o.sub?T(364,159,9.5,BLD,o.sub):'');
 
-      const gate=()=>`<rect x="224" y="8" width="12" height="156" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
-      +T(230,20,8,GR,'TURNSTILE','font-weight="bold" letter-spacing="1" class="h"');
-      const aOut=(p,y,t)=>T(230,y-8,10,GR,t,BDH)+`<line x1="192" y1="${y}" x2="266" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
-      const aIn =(p,y)=>T(230,y-8,10,GR,'in &#10003;',BDH)+`<line x1="266" y1="${y}" x2="192" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
-      const aRed=(p,y)=>T(230,y-8,10,RD,'then: blocked',BDH)+`<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`+T(230,y+4,12,RD,'&#10007;',BH);
-      const aGrey=(p,y)=>T(230,y-8,10,GYD,'in: sealed',BDH)+`<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`+T(230,y+4,12,GY,'&#10007;',BH);
+     const gate=()=>`<rect x="224" y="8" width="12" height="156" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
+                  +T(230,20,8,GR,'TURNSTILE','font-weight="bold" letter-spacing="1" class="h"');
+     const aOut=(p,y,t)=>T(230,y-8,10,GR,t,BDH)+`<line x1="192" y1="${y}" x2="266" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+     const aIn =(p,y)=>T(230,y-8,10,GR,'in &#10003;',BDH)+`<line x1="266" y1="${y}" x2="192" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+     const aRed=(p,y)=>T(230,y-8,10,RD,'then: blocked',BDH)+`<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`+T(230,y+4,12,RD,'&#10007;',BH);
+     const aGrey=(p,y)=>T(230,y-8,10,GYD,'in: sealed',BDH)+`<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`+T(230,y+4,12,GY,'&#10007;',BH);
 
-      function meter(p,m){
-      let s=`<rect class="mhl" x="24" y="173" width="412" height="71" rx="8" fill="#f2f7fc" stroke="#2c5577" stroke-width="1.5"/>`
-      +`<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
-      +T(330,186,9,'#333','16M cap',B)+`<line x1="330" y1="189" x2="330" y2="214" stroke="#333" stroke-width="1.6"/>`
-      +`<rect x="30" y="192" width="215" height="15" fill="${BL}"/>`+T(137,203.5,9,'#fff','11.5M',B)
-      +`<rect x="245" y="192" width="85" height="15" fill="${OR}"/>`+T(287,203.5,9,'#fff','4.5M',B);
-      if(m.over) s+=`<rect x="330" y="192" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
-      +T(361,203.5,9,RD,'+ ?','font-weight="bold" class="h"')
-      +`<text x="398" y="203.5" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
-      s+=T(230,236,12,m.col,m.verdict,B);
-      return s;
-      }
+     function meter(p,m){
+       let s=`<rect class="mhl" x="24" y="173" width="412" height="71" rx="8" fill="#f2f7fc" stroke="#2c5577" stroke-width="1.5"/>`
+            +`<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
+            +T(330,186,9,'#333','16M cap',B)+`<line x1="330" y1="189" x2="330" y2="214" stroke="#333" stroke-width="1.6"/>`
+            +`<rect x="30" y="192" width="215" height="15" fill="${BL}"/>`+T(137,203.5,9,'#fff','11.5M',B)
+            +`<rect x="245" y="192" width="85" height="15" fill="${OR}"/>`+T(287,203.5,9,'#fff','4.5M',B);
+       if(m.over) s+=`<rect x="330" y="192" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+                    +T(361,203.5,9,RD,'+ ?','font-weight="bold" class="h"')
+                    +`<text x="398" y="203.5" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
+       s+=T(230,236,12,m.col,m.verdict,B);
+       return s;
+     }
 
-      function svgPanel(P){
-      const p=P.n;
-      const defs='<defs>'+(P.cf?`<pattern id="h${p}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="7" stroke="${RD}" stroke-width="2"/></pattern>`:'')
-      +mk('g'+p,GR)+mk('r'+p,RD)+mk('x'+p,'#bbb')+mk('o'+p,ORD)+mk('b'+p,BL)+'</defs>';
-      return `<svg viewBox="0 0 460 248">${defs}<g class="zo">${leftPool(p,P.left)}</g><g class="zg">${gate()}${P.flow}</g><g class="zi">${P.flowIn}</g><g class="zr">${rightPool(p,P.right)}</g><g class="zm">${meter(p,P.meter)}</g></svg>`;
-      }
+     function svgPanel(P){
+       const p=P.n;
+       const defs='<defs>'+(P.cf?`<pattern id="h${p}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="7" stroke="${RD}" stroke-width="2"/></pattern>`:'')
+                 +mk('g'+p,GR)+mk('r'+p,RD)+mk('x'+p,'#bbb')+mk('o'+p,ORD)+mk('b'+p,BL)+'</defs>';
+       return `<svg viewBox="0 0 460 248">${defs}<g class="zo">${leftPool(p,P.left)}</g><g class="zg">${gate()}${P.flow}</g><g class="zi">${P.flowIn}</g><g class="zr">${rightPool(p,P.right)}</g><g class="zm">${meter(p,P.meter)}</g></svg>`;
+     }
 
-      const PRIV='private &amp; public &#8212; every move proven &#10003;';
-      const PANELS=[
-      {n:1,cf:false,
-      left:{cap:'ZEC changes hands inside &#10003;',capCol:ORD,sub:'all of it entered via the turnstile'},
-      right:{title:'Rest of Zcash',sub:PRIV},
-      flow:aOut(1,72,'out &#8804; 4.5M &#10003;'),flowIn:aIn(1,132),
-      meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but no longer provable'}},
-      {n:2,cf:true,
-      left:{split:true,cap:'counterfeit ZEC changes hands too',capCol:RD,sub:'invisible &amp; unbounded',subCol:RD},
-      right:{title:'Rest of Zcash',sub:PRIV},
-      flow:aOut(2,72,'out: first 4.5M &#10003;')+aRed(2,106),flowIn:aIn(2,144),
-      meter:{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'}},
-      {n:3,cf:false,
-      left:{sealed:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'all 4.5M can exit &#10003;',subCol:GR},
-      right:{title:'Rest of Zcash + new pool',sub:PRIV},
-      flow:aOut(3,72,'out &#8804; 4.5M &#10003;'),flowIn:aGrey(3,132),
-      meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}},
-      {n:4,cf:true,
-      left:{sealed:true,split:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'exit is first come, first served',subCol:RD},
-      right:{title:'Rest of Zcash + new pool',sub:PRIV},
-      flow:aOut(4,72,'out: first 4.5M &#10003;')+aRed(4,106),flowIn:aGrey(4,144),
-      meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}}
-      ];
+     const PRIV='private &amp; public &#8212; every move proven &#10003;';
+     const PANELS=[
+       {n:1,cf:false,
+        left:{cap:'ZEC changes hands inside &#10003;',capCol:ORD,sub:'all of it entered via the turnstile'},
+        right:{title:'Rest of Zcash',sub:PRIV},
+        flow:aOut(1,72,'out &#8804; 4.5M &#10003;'),flowIn:aIn(1,132),
+        meter:{col:AM,verdict:'&#10003; 16M &#8212; true, but no longer provable'}},
+       {n:2,cf:true,
+        left:{split:true,cap:'counterfeit ZEC changes hands too',capCol:RD,sub:'invisible &amp; unbounded',subCol:RD},
+        right:{title:'Rest of Zcash',sub:PRIV},
+        flow:aOut(2,72,'out: first 4.5M &#10003;')+aRed(2,106),flowIn:aIn(2,144),
+        meter:{over:true,col:RD,verdict:'&#10007; 16M + ? &#8212; no limit, not verifiable'}},
+       {n:3,cf:false,
+        left:{sealed:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'all 4.5M can exit &#10003;',subCol:GR},
+        right:{title:'Rest of Zcash + new pool',sub:PRIV},
+        flow:aOut(3,72,'out &#8804; 4.5M &#10003;'),flowIn:aGrey(3,132),
+        meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}},
+       {n:4,cf:true,
+        left:{sealed:true,split:true,cap:'no movement inside &#8212; exit only',capCol:GYD,sub:'exit is first come, first served',subCol:RD},
+        right:{title:'Rest of Zcash + new pool',sub:PRIV},
+        flow:aOut(4,72,'out: first 4.5M &#10003;')+aRed(4,106),flowIn:aGrey(4,144),
+        meter:{col:GR,verdict:'&#10003; &#8804; 16M &#8212; enforced, verifiable by anyone'}}
+     ];
 
-      const TAG={clean:'if the bug was never exploited',dirty:'if counterfeiting happened'};
-      const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}"><div class="tag">${TAG[col]}</div>${svgPanel(P)}</div>`;
-      document.getElementById('grid').innerHTML=
-      `<div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
+     const TAG={clean:'if the bug was never exploited',dirty:'if counterfeiting happened'};
+     const cell=(P,col,row)=>`<div class="cell ${row} c-${col}" data-col="${col}"><div class="tag">${TAG[col]}</div>${svgPanel(P)}</div>`;
+     document.getElementById('grid').innerHTML=
+       `<div class="rowlab g-top">TODAY</div>${cell(PANELS[0],'clean','g-top')}${cell(PANELS[1],'dirty','g-top')}
       <div class="bigwrap"><button class="bigbtn" id="iwbtn" onclick="toggleIW()"></button></div>
       <div class="band g-bot" id="band">&#10503; &nbsp;IRONWOOD ACTIVATES&nbsp; &#10503; <span>&mdash; the old Orchard pool is sealed: nothing enters, nothing changes hands inside, exit only &mdash; same turnstile, same 4.5M budget</span></div>
 
@@ -260,94 +269,94 @@
 
       <div class="rowlab g-bot">AFTER IRONWOOD</div>${cell(PANELS[2],'clean','g-bot')}${cell(PANELS[3],'dirty','g-bot')}`;
 
-      /* ---------- answers ---------- */
-      const GRN='<b style="color:#1a7a3a">',RDS='<b style="color:#c0392b">';
-        const XR='<b style="color:#c0392b">&#10007;</b>',QR='<b style="color:#c0392b">?</b>';
-        const QLAB={funds:'WILL USERS GET THEIR FUNDS BACK?',supply:'IS THE 16M SUPPLY SOUND?',both:'SUPPLY &amp; FUNDS'};
-        /* after-answers that are objects ({txt}) mean: same answer as today — render as a compact chip */
-        const ANS={
-        today:{
-        funds:{
-        clean:GRN+'If the bug was never exploited</b>: <b>yes.</b> Exactly 4.5M honest ZEC is inside; the turnstile lets exactly 4.5M out. Everyone leaves whole.',
-        dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M exits, the rest is blocked. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
-      all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+').'},
-  supply:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> Every Orchard transaction carried a proof that nothing was counterfeited, but the bug means false proofs could have passed &mdash; so the proofs can&rsquo;t be trusted.',
-      dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> The bug let false proofs pass the verifier: counterfeit ZEC circulates as real money &mdash; 16M&nbsp;+&nbsp;'+QR+'.',
-      all:'<b>No one can tell &mdash; because of the bug.</b> Every Orchard move carried a proof that nothing was counterfeited; the bug means false proofs could have passed. '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit.'},
-  both:{
-  clean:GRN+'If the bug was never exploited</b>: <b>funds safe; supply 16M.</b> But both facts rest on Orchard&rsquo;s proofs &mdash; and the bug means those proofs can&rsquo;t be trusted.',
-      dirty:RDS+'If counterfeiting happened</b>: <b>supply: no limit (16M&nbsp;+&nbsp;'+QR+'). Funds: not guaranteed</b> &mdash; the first 4.5M exits, the rest is blocked ('+XR+').',
-      all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+').'}},
-  after:{
-  funds:{
-  clean:{txt:'Ironwood doesn&rsquo;t change this: everyone still leaves whole.'},
-  dirty:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'},
-  all:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'}},
-  supply:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and provable again.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it. The new pool is just as private &mdash; proofs fixed, plus extra assurance: new audits and formal verification.',
-      dirty:RDS+'If counterfeiting happened</b>: <b>yes &mdash; no matter how much was minted.</b> The '+QR+' can never change hands again; the only exit counts to 4.5M and stops.',
-      all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed; at most 4.5M can ever exit. Privacy continues in the new pool &mdash; proofs fixed, plus extra assurance: new audits and formal verification.'},
-      both:{
-      clean:GRN+'If the bug was never exploited</b>: <b>supply: 16M, provable again. Funds: unchanged</b> &mdash; everyone leaves whole. The new pool is just as private.',
-      dirty:RDS+'If counterfeiting happened</b>: <b>supply: now capped, provably. Funds: unchanged</b> &mdash; not guaranteed ('+XR+'); a risk created by the bug, not by Ironwood.',
-      all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; now enforced and verifiable, with privacy continuing in the new pool. Funds: unchanged</b> &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.'}}};
+     /* ---------- answers ---------- */
+     const GRN='<b style="color:#1a7a3a">',RDS='<b style="color:#c0392b">';
+     const XR='<b style="color:#c0392b">&#10007;</b>',QR='<b style="color:#c0392b">?</b>';
+     const QLAB={funds:'WILL USERS GET THEIR FUNDS BACK?',supply:'IS THE 16M SUPPLY SOUND?',both:'SUPPLY &amp; FUNDS'};
+     /* after-answers that are objects ({txt}) mean: same answer as today — render as a compact chip */
+     const ANS={
+       today:{
+         funds:{
+           clean:GRN+'If the bug was never exploited</b>: <b>yes.</b> Exactly 4.5M honest ZEC is inside; the turnstile lets exactly 4.5M out. Everyone leaves whole.',
+           dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M exits, the rest is blocked. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
+           all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+').'},
+         supply:{
+           clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> Every Orchard transaction carried a proof that nothing was counterfeited, but the bug means false proofs could have passed &mdash; so the proofs can&rsquo;t be trusted.',
+           dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> The bug let false proofs pass the verifier: counterfeit ZEC circulates as real money &mdash; 16M&nbsp;+&nbsp;'+QR+'.',
+           all:'<b>No one can tell &mdash; because of the bug.</b> Every Orchard move carried a proof that nothing was counterfeited; the bug means false proofs could have passed. '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit.'},
+         both:{
+           clean:GRN+'If the bug was never exploited</b>: <b>funds safe; supply 16M.</b> But both facts rest on Orchard&rsquo;s proofs &mdash; and the bug means those proofs can&rsquo;t be trusted.',
+           dirty:RDS+'If counterfeiting happened</b>: <b>supply: no limit (16M&nbsp;+&nbsp;'+QR+'). Funds: not guaranteed</b> &mdash; the first 4.5M exits, the rest is blocked ('+XR+').',
+           all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+').'}},
+       after:{
+         funds:{
+           clean:{txt:'Ironwood doesn&rsquo;t change this: everyone still leaves whole.'},
+           dirty:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'},
+           all:{txt:'Ironwood doesn&rsquo;t change this. The risk was created by the bug, not by Ironwood.'}},
+         supply:{
+           clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; and provable again.</b> &#8804;&nbsp;16M is enforced by consensus rules; anyone running a node can verify it. The new pool is just as private &mdash; proofs fixed, plus extra assurance: new audits and formal verification.',
+           dirty:RDS+'If counterfeiting happened</b>: <b>yes &mdash; no matter how much was minted.</b> The '+QR+' can never change hands again; the only exit counts to 4.5M and stops.',
+           all:'<b>Yes &mdash; either way, provably.</b> The old pool is sealed; at most 4.5M can ever exit. Privacy continues in the new pool &mdash; proofs fixed, plus extra assurance: new audits and formal verification.'},
+         both:{
+           clean:GRN+'If the bug was never exploited</b>: <b>supply: 16M, provable again. Funds: unchanged</b> &mdash; everyone leaves whole. The new pool is just as private.',
+           dirty:RDS+'If counterfeiting happened</b>: <b>supply: now capped, provably. Funds: unchanged</b> &mdash; not guaranteed ('+XR+'); a risk created by the bug, not by Ironwood.',
+           all:'<b>Supply: &#8804;&nbsp;16M either way &mdash; now enforced and verifiable, with privacy continuing in the new pool. Funds: unchanged</b> &mdash; '+RDS+'if counterfeiting happened</b>, honest ZEC could be trapped ('+XR+'); a risk created by the bug, not by Ironwood.'}}};
 
-  const STATUSL={all:'',supply:'The supply bar is the verdict &mdash; the rest of the picture is the argument for it.',
-  funds:'Watch the Orchard pool and its turnstile.'};
+     const STATUSL={all:'',supply:'The supply bar is the verdict &mdash; the rest of the picture is the argument for it.',
+                    funds:'Watch the Orchard pool and its turnstile.'};
 
-  /* ---------- state ---------- */
-  let concern=null;
-  const C2L={funds:'funds',supply:'supply',both:'all'};
+     /* ---------- state ---------- */
+     let concern=null;
+     const C2L={funds:'funds',supply:'supply',both:'all'};
 
-  function buildSlots(){
-  let hT='',hA='';
-  for(const c of ['funds','supply','both'])for(const v of ['all','clean','dirty']){
-  hT+=`<div class="svar" data-k="${c}|${v}"><p class="statusL">${STATUSL[C2L[c]]}</p>`
-        +`<div class="answer"><span class="alab">${QLAB[c]}</span><span>${ANS.today[c][v]}</span></div></div>`;
-      const aft=ANS.after[c][v],same=typeof aft==='object';
-      hA+=`<div class="svar" data-k="${c}|${v}"><div class="answer ans-after${same?' same':''}">`
-        +`<span class="alab">${QLAB[c]}${same?' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY':''}</span>`
-        +`<span>${same?aft.txt:aft}</span></div></div>`;
-      }
-      document.getElementById('slotToday').innerHTML=hT;
-      document.getElementById('slotAfter').innerHTML=hA;
-      }
-      function renderAns(){
-      if(!concern)return;
-      const k=concern+'|'+document.body.dataset.view;
-      document.querySelectorAll('.svar').forEach(el=>el.classList.toggle('on',el.dataset.k===k));
-      }
-      function setConcern(c){
-      concern=c;
-      document.body.dataset.lens=C2L[c];
-      for(const [id,k] of [['l-funds','funds'],['l-supply','supply'],['l-all','both']])
-      document.getElementById(id).setAttribute('aria-pressed',String(k===c));
-      renderAns();
-      if(document.body.dataset.stage==='step1'){
-      setStage('today');window.scrollTo({top:0,behavior:'smooth'});}
-      }
-      function setView(v){
-      document.body.dataset.view=v;
-      renderAns();
-      }
-      function setStage(s){
-      document.body.dataset.stage=s;
-      const b=document.getElementById('iwbtn');
-      b.innerHTML = s==='full' ? '&#8593;&nbsp; Back to today &mdash; before Ironwood'
-      : 'What will change when Ironwood activates? &nbsp;&#8595;';
-      b.classList.toggle('open',s==='full');
-      }
-      function toggleIW(){
-      if(document.body.dataset.stage==='full'){setStage('today');}
-      else{setStage('full');
-      setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
-      }
-      document.querySelectorAll('.cell').forEach(el=>
-      el.onclick=()=>{const v=document.body.dataset.view;
-      setView(v==='all'?el.dataset.col:'all');});
-      buildSlots();
-      setView('all');setStage('step1');
+     function buildSlots(){
+       let hT='',hA='';
+       for(const c of ['funds','supply','both'])for(const v of ['all','clean','dirty']){
+         hT+=`<div class="svar" data-k="${c}|${v}"><p class="statusL">${STATUSL[C2L[c]]}</p>`
+            +`<div class="answer"><span class="alab">${QLAB[c]}</span><span>${ANS.today[c][v]}</span></div></div>`;
+         const aft=ANS.after[c][v],same=typeof aft==='object';
+         hA+=`<div class="svar" data-k="${c}|${v}"><div class="answer ans-after${same?' same':''}">`
+            +`<span class="alab">${QLAB[c]}${same?' &nbsp;&middot;&nbsp; SAME ANSWER AS TODAY':''}</span>`
+            +`<span>${same?aft.txt:aft}</span></div></div>`;
+       }
+       document.getElementById('slotToday').innerHTML=hT;
+       document.getElementById('slotAfter').innerHTML=hA;
+     }
+     function renderAns(){
+       if(!concern)return;
+       const k=concern+'|'+document.body.dataset.view;
+       document.querySelectorAll('.svar').forEach(el=>el.classList.toggle('on',el.dataset.k===k));
+     }
+     function setConcern(c){
+       concern=c;
+       document.body.dataset.lens=C2L[c];
+       for(const [id,k] of [['l-funds','funds'],['l-supply','supply'],['l-all','both']])
+         document.getElementById(id).setAttribute('aria-pressed',String(k===c));
+       renderAns();
+       if(document.body.dataset.stage==='step1'){
+         setStage('today');window.scrollTo({top:0,behavior:'smooth'});}
+     }
+     function setView(v){
+       document.body.dataset.view=v;
+       renderAns();
+     }
+     function setStage(s){
+       document.body.dataset.stage=s;
+       const b=document.getElementById('iwbtn');
+       b.innerHTML = s==='full' ? '&#8593;&nbsp; Back to today &mdash; before Ironwood'
+                   : 'What will change when Ironwood activates? &nbsp;&#8595;';
+       b.classList.toggle('open',s==='full');
+     }
+     function toggleIW(){
+       if(document.body.dataset.stage==='full'){setStage('today');}
+       else{setStage('full');
+         setTimeout(()=>document.getElementById('band').scrollIntoView({behavior:'smooth',block:'start'}),60);}
+     }
+     document.querySelectorAll('.cell').forEach(el=>
+       el.onclick=()=>{const v=document.body.dataset.view,c=el.dataset.col;
+         setView(v===c?'all':c);});
+     buildSlots();
+     setView('all');setStage('step1');
     </script>
   </body>
 </html>
