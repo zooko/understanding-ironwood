@@ -247,13 +247,13 @@ today:{
   dirty:RDS+'If counterfeiting happened</b>: <b>not guaranteed.</b> The turnstile counts amounts, not legitimacy: the first 4.5M exits, the rest is blocked. If counterfeit ZEC exits, an equal amount of honest ZEC is trapped ('+XR+').',
   all:'<b>Probably &mdash; but not necessarily.</b> '+GRN+'If the bug was never exploited</b>: everyone leaves whole. '+RDS+'If counterfeiting happened</b>: the first 4.5M exits, whoever they are &mdash; honest ZEC could be trapped ('+XR+'). And because the bug broke the proofs, no one can tell which happened.'},
  supply:{
-  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> Privacy never blocked verification: every Orchard move carried a proof that nothing was counterfeited. The bug means false proofs could have passed &mdash; so the proofs can&rsquo;t be trusted.',
+  clean:GRN+'If the bug was never exploited</b>: <b>yes &mdash; but no longer provable.</b> Every Orchard transaction carried a proof that nothing was counterfeited, but the bug means false proofs could have passed &mdash; so the proofs can&rsquo;t be trusted.',
   dirty:RDS+'If counterfeiting happened</b>: <b>no &mdash; and there&rsquo;s no limit.</b> The bug let false proofs pass the verifier: counterfeit ZEC circulates as real money &mdash; 16M&nbsp;+&nbsp;'+QR+'.',
-  all:'<b>No one can tell &mdash; because of the bug, not because of privacy.</b> Every Orchard move carried a proof that nothing was counterfeited; the bug means false proofs could have passed. '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit.'},
+  all:'<b>No one can tell &mdash; because of the bug.</b> Every Orchard move carried a proof that nothing was counterfeited; the bug means false proofs could have passed. '+GRN+'If the bug was never exploited</b>: 16M &mdash; true, but unprovable. '+RDS+'If counterfeiting happened</b>: 16M&nbsp;+&nbsp;'+QR+' &mdash; no limit.'},
  both:{
   clean:GRN+'If the bug was never exploited</b>: <b>funds safe; supply 16M.</b> But both facts rest on Orchard&rsquo;s proofs &mdash; and the bug means those proofs can&rsquo;t be trusted.',
   dirty:RDS+'If counterfeiting happened</b>: <b>supply: no limit (16M&nbsp;+&nbsp;'+QR+'). Funds: not guaranteed</b> &mdash; the first 4.5M exits, the rest is blocked ('+XR+').',
-  all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+'). The bug &mdash; not privacy &mdash; hides which is real.'}},
+  all:GRN+'If the bug was never exploited</b>: funds safe, supply 16M &mdash; but unprovable. '+RDS+'If counterfeiting happened</b>: supply unbounded, funds not guaranteed ('+XR+').'}},
 after:{
  funds:{
   clean:{txt:'Ironwood doesn&rsquo;t change this: everyone still leaves whole.'},
