@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zcash Orchard / Ironwood Static Panels</title>
+<style>
+ body{
+   font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+   max-width:1100px;
+   margin:18px auto;
+   padding:0 14px 32px;
+   color:#222;
+   background:#fafaf8;
+ }
+ h1{
+   text-align:center;
+   font-size:20px;
+   margin:0 0 18px;
+ }
+ .grid{
+   display:grid;
+   gap:18px;
+ }
+ .panel{
+   background:#fff;
+   border-radius:10px;
+   padding:8px;
+   box-shadow:0 1px 6px rgba(0,0,0,.05);
+ }
+ .panel.clean{border:1.5px solid rgba(26,122,58,.55)}
+ .panel.dirty{border:1.5px solid rgba(192,57,43,.55)}
+ svg{
+   width:100%;
+   height:auto;
+   display:block;
+ }
+ svg text{
+   font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+ }
+ text.h{
+   paint-order:stroke;
+   stroke:#fff;
+   stroke-width:3.5px;
+   stroke-linejoin:round;
+ }
+ @media print{
+   body{max-width:none;background:#fff}
+   .panel{break-inside:avoid;box-shadow:none}
+ }
+</style>
+</head>
+<body>
+
+<h1>Static Panels</h1>
+<div class="grid" id="grid"></div>
+
+<script>
+ const OR='#e8923a', ORD='#9a5b15',
+       BL='#4878a8', BLD='#2c5577',
+       GR='#1a7a3a', RD='#c0392b',
+       GY='#999', GYD='#777', AM='#a86b00';
+
+ const ORCH='3.7M';
+ const REST='13.0M';
+ const CAP='16.7M';
+
+ const B='font-weight="bold"';
+ const BH='font-weight="bold" class="h"';
+ const BDH='font-weight="bold" class="d h"';
+
+ const T=(x,y,s,f,c,e='') =>
+   `<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" fill="${f}" ${e}>${c}</text>`;
+
+ const mk=(id,f) =>
+   `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${f}"/></marker>`;
+
+ const SOLID=' pathLength="100" stroke-dasharray="87 13"';
+ const DASHED=' pathLength="100" stroke-dasharray="5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 6 13"';
+
+ function leftPool(p,o){
+   const sl=o.sealed, dash=sl?DASHED:SOLID;
+   const arc=(d,col,m)=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="2.2"${dash} marker-end="url(#${m}${p})"/>`;
+
+   let s =
+     `<rect x="6" y="8" width="180" height="156" rx="6" fill="${sl?'#f4f4f4':'#fff7ef'}" stroke="${sl?'#999':OR}" stroke-width="1.6"/>`
+     + T(96,26,11.5,sl?'#555':ORD,'Orchard pool'+(sl?' &#8212; sealed':''),B);
+
+   if(o.split){
+     s += arc('M 54 56 A 42 16 0 0 1 138 56',sl?'#c4c4c4':ORD,sl?'x':'o')
+       + arc('M 138 112 A 42 16 0 0 1 54 112',sl?'#c4c4c4':RD,sl?'x':'r')
+       + `<rect x="16" y="62" width="76" height="44" rx="3" fill="${OR}"/>`
+       + T(54,82,12,'#fff',ORCH,B)
+       + T(54,97,8.5,'#fff','honest')
+       + `<rect x="100" y="62" width="72" height="44" rx="3" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+       + `<circle cx="136" cy="84" r="11" fill="#fff" stroke="${RD}"/>`
+       + T(136,88,12,RD,'?',B);
+
+     if(sl){
+       s += T(96,46,12,GY,'&#10007;',BH)
+          + T(96,130,12,GY,'&#10007;',BH);
+     }
+   }else{
+     s += arc('M 51 60 A 45 16 0 0 1 141 60',sl?'#c4c4c4':ORD,sl?'x':'o')
+       + arc('M 141 104 A 45 16 0 0 1 51 104',sl?'#c4c4c4':ORD,sl?'x':'o')
+       + T(96,90,22,OR,ORCH,B);
+
+     if(sl){
+       s += T(96,50,12,GY,'&#10007;',BH)
+          + T(96,122,12,GY,'&#10007;',BH);
+     }
+   }
+
+   s += T(96,146,9.5,o.capCol,o.cap,B);
+   if(o.sub){
+     s += T(96,159,9.5,o.subCol||'#666',o.sub,'class="d"');
+   }
+   return s;
+ }
+
+ function rightPool(p,o){
+   return `<rect x="274" y="8" width="180" height="156" rx="6" fill="#eef4fa" stroke="${BL}" stroke-width="1.6"/>`
+     + T(364,26,11.5,BLD,o.title,B)
+     + `<path d="M 319 60 A 45 16 0 0 1 409 60" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
+     + `<path d="M 409 104 A 45 16 0 0 1 319 104" fill="none" stroke="${BL}" stroke-width="2.2"${SOLID} marker-end="url(#b${p})"/>`
+     + T(364,90,22,BL,REST,B)
+     + T(364,146,9.5,BLD,'changing hands freely &#10003;',B);
+ }
+
+ const gate=()=>`<rect x="224" y="8" width="12" height="156" fill="#e9f7ee" stroke="${GR}" stroke-width="1.2"/>`
+   + T(230,20,8,GR,'TURNSTILE','font-weight="bold" letter-spacing="1" class="h"');
+
+ const aOut=(p,y,t)=>T(230,y-8,10,GR,t,BDH)
+   + `<line x1="192" y1="${y}" x2="266" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+
+ const aIn=(p,y)=>T(230,y-8,10,GR,'in &#10003;',BDH)
+   + `<line x1="266" y1="${y}" x2="192" y2="${y}" stroke="${GR}" stroke-width="2.4" marker-end="url(#g${p})"/>`;
+
+ const aRed=(p,y)=>T(230,y-8,10,RD,'then: blocked',BDH)
+   + `<line x1="192" y1="${y}" x2="216" y2="${y}" stroke="${RD}" stroke-width="2.4" marker-end="url(#r${p})"/>`
+   + T(230,y+4,12,RD,'&#10007;',BH);
+
+ const aGrey=(p,y)=>T(230,y-8,10,GYD,'in: sealed',BDH)
+   + `<line x1="266" y1="${y}" x2="242" y2="${y}" stroke="#c4c4c4" stroke-width="2.4" marker-end="url(#x${p})"/>`
+   + T(230,y+4,12,GY,'&#10007;',BH);
+
+ function meter(p,m){
+   /*
+      Bar proportions are based on 13M + 3.7M = 16.7M.
+      Total bar width is 300px: rest = ~233.5px, Orchard = ~66.5px.
+    */
+   const totalW=300, restW=233.5, orchW=66.5, x0=30, y=192, capX=x0+totalW;
+   
+   let s =
+     `<rect class="mhl" x="24" y="173" width="412" height="87" rx="8" fill="#f2f7fc" stroke="#2c5577" stroke-width="1.5" opacity="${m.hl?1:0}"/>`
+     + `<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
+     + T(capX,186,9,'#333',CAP+' cap',B)
+     + `<line x1="${capX}" y1="189" x2="${capX}" y2="214" stroke="#333" stroke-width="1.6"/>`
+     + `<rect x="${x0}" y="${y}" width="${restW}" height="15" fill="${BL}"/>`
+     + T(x0+restW/2,y+11.5,9,'#fff',REST,B)
+     + `<rect x="${x0+restW}" y="${y}" width="${orchW}" height="15" fill="${OR}"/>`
+     + T(x0+restW+orchW/2,y+11.5,9,'#fff',ORCH,B);
+
+   if(m.over){
+     s += `<rect x="${capX}" y="${y}" width="62" height="15" fill="url(#h${p})" stroke="${RD}" stroke-dasharray="4,3"/>`
+       + T(capX+31,y+11.5,9,RD,'+ ?','font-weight="bold" class="h"')
+       + `<text x="${capX+72}" y="${y+11.5}" font-size="9" fill="${RD}" font-weight="bold">no limit</text>`;
+   }
+
+   s += T(230,236,12,m.col,m.verdict,B);
+   return s;
+ }
+
+ function svgPanel(P){
+   const p=P.n;
+   const defs =
+     '<defs>'
+     + (P.cf?`<pattern id="h${p}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="7" stroke="${RD}" stroke-width="2"/></pattern>`:'')
+     + mk('g'+p,GR)
+     + mk('r'+p,RD)
+     + mk('x'+p,'#bbb')
+     + mk('o'+p,ORD)
+     + mk('b'+p,BL)
+     + '</defs>';
+
+   const tagFill=P.kind==='clean'?'#eaf4ee':'#fbeeec';
+   const tagColor=P.kind==='clean'?'#1a5c30':'#8c2418';
+
+   return `<svg viewBox="0 0 460 286" role="img" aria-label="${P.tag}">
+     ${defs}
+     <rect x="177" y="8" width="106" height="10" rx="5" fill="${tagFill}"/>
+     ${T(230,16,6.5,tagColor,P.tag,B)}
+     <g transform="translate(0,20)">
+       <g class="zo">${leftPool(p,P.left)}</g>
+       <g class="zg">${gate()}${P.flow}</g>
+       <g class="zi">${P.flowIn}</g>
+       <g class="zr">${rightPool(p,P.right)}</g>
+       <g class="zm">${meter(p,P.meter)}</g>
+     </g>
+   </svg>`;
+ }
+
+ const PANELS=[
+   {
+     n:1,
+     kind:'clean',
+     tag:'if the bug was never exploited',
+     cf:false,
+     left:{
+       cap:'changing hands freely &#10003;',
+       capCol:ORD
+     },
+     right:{
+       title:'Rest of Zcash'
+     },
+     flow:aOut(1,72,'out &#8804; '+ORCH+' &#10003;'),
+     flowIn:aIn(1,132),
+     meter:{
+       col:AM,
+       verdict:'&#10003; '+CAP+' &#8212; true, but not verifiable'
+     }
+   },
+   {
+     n:2,
+     kind:'dirty',
+     tag:'if counterfeiting happened',
+     cf:true,
+     left:{
+       split:true,
+       cap:'counterfeit ZEC changes hands too',
+       capCol:RD,
+       sub:'invisible &amp; unbounded',
+       subCol:RD
+     },
+     right:{
+       title:'Rest of Zcash'
+     },
+     flow:aOut(2,72,'out: first '+ORCH+' &#10003;')+aRed(2,106),
+     flowIn:aIn(2,144),
+     meter:{
+       over:true,
+       col:RD,
+       verdict:'&#10007; '+CAP+' + ? &#8212; no limit, not verifiable'
+     }
+   },
+   {
+     n:3,
+     kind:'dirty',
+     tag:'if counterfeiting happened',
+     cf:true,
+     left:{
+       sealed:true,
+       split:true,
+       cap:'no movement inside &#8212; exit only',
+       capCol:GYD,
+       sub:'exit is first come, first served',
+       subCol:RD
+     },
+     right:{
+       title:'Rest of Zcash + new pool'
+     },
+     flow:aOut(3,72,'out: first '+ORCH+' &#10003;')+aRed(3,106),
+     flowIn:aGrey(3,144),
+     meter:{
+       col:GR,
+       verdict:'&#10003; &#8804; '+CAP+' &#8212; enforced, verifiable by anyone',
+       hl:true
+     }
+   },
+   {
+     n:4,
+     kind:'clean',
+     tag:'if the bug was never exploited',
+     cf:false,
+     left:{
+       sealed:true,
+       cap:'no movement inside &#8212; exit only',
+       capCol:GYD,
+       sub:'all '+ORCH+' can exit &#10003;',
+       subCol:GR
+     },
+     right:{
+       title:'Rest of Zcash + new pool'
+     },
+     flow:aOut(4,72,'out &#8804; '+ORCH+' &#10003;'),
+     flowIn:aGrey(4,132),
+     meter:{
+       col:GR,
+       verdict:'&#10003; &#8804; '+CAP+' &#8212; enforced, verifiable by anyone',
+       hl:true
+     }
+   }
+ ];
+
+ document.getElementById('grid').innerHTML =
+   PANELS.map(P=>`<div class="panel ${P.kind}">${svgPanel(P)}</div>`).join('');
+</script>
+
+</body>
+</html>
