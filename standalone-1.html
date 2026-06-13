@@ -201,10 +201,12 @@
 
    const tagFill=P.kind==='clean'?'#eaf4ee':'#fbeeec';
    const tagColor=P.kind==='clean'?'#1a5c30':'#8c2418';
+   const tagW=Math.max(106,P.tag.length*3.7+18);
+   const tagX=(460-tagW)/2;
 
    return `<svg viewBox="${vb}" role="img" aria-label="${P.tag}">
      ${defs}
-     <rect x="177" y="8" width="106" height="10" rx="5" fill="${tagFill}"/>
+     <rect x="${tagX}" y="8" width="${tagW}" height="10" rx="5" fill="${tagFill}"/>
      ${T(230,16,6.5,tagColor,P.tag,B)}
      <g transform="translate(0,20)">
        <g class="zo">${leftPool(p,P.left)}</g>
@@ -256,7 +258,7 @@
    {
      n:3,
      kind:'clean',
-     tag:'if the bug was never exploited',
+     tag:'if the bug was never exploited — current situation',
      cf:false,
      left:{
        cap:'changing hands freely &#10003;',
@@ -269,13 +271,13 @@
      flowIn:aIn(3,132),
      meter:{
        col:AM,
-       verdict:'&#10003; '+CAP+' &#8212; true, but not provable'
+       verdict:'&#10003; '+CAP+' &#8212; true, but not verifiable'
      }
    },
    {
      n:4,
      kind:'dirty',
-     tag:'if counterfeiting happened',
+     tag:'if counterfeiting happened — current situation',
      cf:true,
      left:{
        split:true,
@@ -298,7 +300,7 @@
    {
      n:5,
      kind:'dirty',
-     tag:'if counterfeiting happened',
+     tag:'if counterfeiting happened — after Ironwood',
      cf:true,
      left:{
        sealed:true,
@@ -321,7 +323,7 @@
    {
      n:6,
      kind:'clean',
-     tag:'if the bug was never exploited',
+     tag:'if the bug was never exploited — after Ironwood',
      cf:false,
      left:{
        sealed:true,
