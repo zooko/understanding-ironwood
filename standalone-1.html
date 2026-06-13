@@ -18,6 +18,14 @@
    font-size:20px;
    margin:0 0 18px;
  }
+ h2{
+   font-size:15px;
+   color:#666;
+   letter-spacing:1.6px;
+   text-transform:uppercase;
+   margin:26px 0 10px;
+   text-align:center;
+ }
  .grid{
    display:grid;
    gap:18px;
@@ -53,7 +61,12 @@
 <body>
 
 <h1>Static Panels</h1>
-<div class="grid" id="grid"></div>
+
+<h2>Question: Are user funds safe?</h2>
+<div class="grid" id="fundsGrid"></div>
+
+<h2>Question: Is the supply sound?</h2>
+<div class="grid" id="supplyGrid"></div>
 
 <script>
  const OR='#e8923a', ORD='#9a5b15',
@@ -62,7 +75,7 @@
        GY='#999', GYD='#777', AM='#a86b00';
 
  const ORCH='3.7M';
- const REST='13.0M';
+ const REST='13M';
  const CAP='16.7M';
 
  const B='font-weight="bold"';
@@ -148,11 +161,11 @@
    /*
       Bar proportions are based on 13M + 3.7M = 16.7M.
       Total bar width is 300px: rest = ~233.5px, Orchard = ~66.5px.
-    */
+   */
    const totalW=300, restW=233.5, orchW=66.5, x0=30, y=192, capX=x0+totalW;
-   
+
    let s =
-     `<rect class="mhl" x="24" y="173" width="412" height="87" rx="8" fill="#f2f7fc" stroke="#2c5577" stroke-width="1.5" opacity="${m.hl?1:0}"/>`
+     `<rect class="mhl" x="24" y="173" width="412" height="87" rx="8" fill="#f2f7fc" stroke="#2c5577" stroke-width="1.5"/>`
      + `<text x="30" y="186" font-size="9" fill="#777" font-weight="bold" letter-spacing="1">TOTAL ZEC THAT CAN CHANGE HANDS</text>`
      + T(capX,186,9,'#333',CAP+' cap',B)
      + `<line x1="${capX}" y1="189" x2="${capX}" y2="214" stroke="#333" stroke-width="1.6"/>`
@@ -173,6 +186,9 @@
 
  function svgPanel(P){
    const p=P.n;
+   const hasMeter=!!P.meter;
+   const vb=hasMeter ? '0 0 460 286' : '0 0 460 196';
+
    const defs =
      '<defs>'
      + (P.cf?`<pattern id="h${p}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#fbecec"/><line x1="0" y1="0" x2="0" y2="7" stroke="${RD}" stroke-width="2"/></pattern>`:'')
@@ -186,7 +202,7 @@
    const tagFill=P.kind==='clean'?'#eaf4ee':'#fbeeec';
    const tagColor=P.kind==='clean'?'#1a5c30':'#8c2418';
 
-   return `<svg viewBox="0 0 460 286" role="img" aria-label="${P.tag}">
+   return `<svg viewBox="${vb}" role="img" aria-label="${P.tag}">
      ${defs}
      <rect x="177" y="8" width="106" height="10" rx="5" fill="${tagFill}"/>
      ${T(230,16,6.5,tagColor,P.tag,B)}
@@ -195,12 +211,12 @@
        <g class="zg">${gate()}${P.flow}</g>
        <g class="zi">${P.flowIn}</g>
        <g class="zr">${rightPool(p,P.right)}</g>
-       <g class="zm">${meter(p,P.meter)}</g>
+       ${hasMeter ? `<g class="zm">${meter(p,P.meter)}</g>` : ''}
      </g>
    </svg>`;
  }
 
- const PANELS=[
+ const FUNDS_PANELS=[
    {
      n:1,
      kind:'clean',
@@ -214,11 +230,7 @@
        title:'Rest of Zcash'
      },
      flow:aOut(1,72,'out &#8804; '+ORCH+' &#10003;'),
-     flowIn:aIn(1,132),
-     meter:{
-       col:AM,
-       verdict:'&#10003; '+CAP+' &#8212; true, but not verifiable'
-     }
+     flowIn:aIn(1,132)
    },
    {
      n:2,
@@ -236,7 +248,47 @@
        title:'Rest of Zcash'
      },
      flow:aOut(2,72,'out: first '+ORCH+' &#10003;')+aRed(2,106),
-     flowIn:aIn(2,144),
+     flowIn:aIn(2,144)
+   }
+ ];
+
+ const SUPPLY_PANELS=[
+   {
+     n:3,
+     kind:'clean',
+     tag:'if the bug was never exploited',
+     cf:false,
+     left:{
+       cap:'changing hands freely &#10003;',
+       capCol:ORD
+     },
+     right:{
+       title:'Rest of Zcash'
+     },
+     flow:aOut(3,72,'out &#8804; '+ORCH+' &#10003;'),
+     flowIn:aIn(3,132),
+     meter:{
+       col:AM,
+       verdict:'&#10003; '+CAP+' &#8212; true, but not provable'
+     }
+   },
+   {
+     n:4,
+     kind:'dirty',
+     tag:'if counterfeiting happened',
+     cf:true,
+     left:{
+       split:true,
+       cap:'counterfeit ZEC changes hands too',
+       capCol:RD,
+       sub:'invisible &amp; unbounded',
+       subCol:RD
+     },
+     right:{
+       title:'Rest of Zcash'
+     },
+     flow:aOut(4,72,'out: first '+ORCH+' &#10003;')+aRed(4,106),
+     flowIn:aIn(4,144),
      meter:{
        over:true,
        col:RD,
@@ -244,7 +296,7 @@
      }
    },
    {
-     n:3,
+     n:5,
      kind:'dirty',
      tag:'if counterfeiting happened',
      cf:true,
@@ -259,16 +311,15 @@
      right:{
        title:'Rest of Zcash + new pool'
      },
-     flow:aOut(3,72,'out: first '+ORCH+' &#10003;')+aRed(3,106),
-     flowIn:aGrey(3,144),
+     flow:aOut(5,72,'out: first '+ORCH+' &#10003;')+aRed(5,106),
+     flowIn:aGrey(5,144),
      meter:{
        col:GR,
-       verdict:'&#10003; &#8804; '+CAP+' &#8212; enforced, verifiable by anyone',
-       hl:true
+       verdict:'&#10003; &#8804; '+CAP+' &#8212; enforced, verifiable by anyone'
      }
    },
    {
-     n:4,
+     n:6,
      kind:'clean',
      tag:'if the bug was never exploited',
      cf:false,
@@ -282,18 +333,20 @@
      right:{
        title:'Rest of Zcash + new pool'
      },
-     flow:aOut(4,72,'out &#8804; '+ORCH+' &#10003;'),
-     flowIn:aGrey(4,132),
+     flow:aOut(6,72,'out &#8804; '+ORCH+' &#10003;'),
+     flowIn:aGrey(6,132),
      meter:{
        col:GR,
-       verdict:'&#10003; &#8804; '+CAP+' &#8212; enforced, verifiable by anyone',
-       hl:true
+       verdict:'&#10003; &#8804; '+CAP+' &#8212; enforced, verifiable by anyone'
      }
    }
  ];
 
- document.getElementById('grid').innerHTML =
-   PANELS.map(P=>`<div class="panel ${P.kind}">${svgPanel(P)}</div>`).join('');
+ document.getElementById('fundsGrid').innerHTML =
+   FUNDS_PANELS.map(P=>`<div class="panel ${P.kind}">${svgPanel(P)}</div>`).join('');
+
+ document.getElementById('supplyGrid').innerHTML =
+   SUPPLY_PANELS.map(P=>`<div class="panel ${P.kind}">${svgPanel(P)}</div>`).join('');
 </script>
 
 </body>
